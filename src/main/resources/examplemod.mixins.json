@@ -8,6 +8,7 @@
     "EffectMixin"
   ],
   "client": [
+    "ClientTooltipMixin"
   ],
   "injectors": {
     "defaultRequire": 1

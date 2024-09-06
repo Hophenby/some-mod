@@ -9,11 +9,14 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 
 public class ProjectileSpark extends AbstractModifiableProj {
+
     public ProjectileSpark(EntityType<? extends Projectile> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
     public ProjectileSpark(Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         super(EntityRegistry.PROJECTILE_SPARK.get(), pOwner, pX, pY, pZ, pLevel);
+        maxExistingTicksLimit = 20 * 3600;
+        damage = 1.0f;
     }
 
     @Override

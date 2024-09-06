@@ -150,8 +150,13 @@ dependencies {
     // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
 
     // implementation "com.hollingsworth.ars_nouveau:ars_nouveau-${minecraft_version}:${ars_version}"
-    implementation "com.hollingsworth.ars_nouveau:ars_nouveau-1.21.0:${ars_version}"
-    // using hardcoded "1.21.0" instead of ${minecraft_version} because it's not called "1.21" which is what the minecraft_version exactly is
+    if (minecraft_version == "1.21" || minecraft_version == "1.21.1") {
+        implementation "com.hollingsworth.ars_nouveau:ars_nouveau-1.21.0:${ars_version}"
+        // using hardcoded "1.21.0" instead of ${minecraft_version} because it's not called "1.21" which is what the minecraft_version exactly is
+    } else {
+        implementation "com.hollingsworth.ars_nouveau:ars_nouveau-${minecraft_version}:${ars_version}"
+    }
+
 
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation "vazkii.patchouli:Patchouli:${minecraft_version}-${patchouli_version}"

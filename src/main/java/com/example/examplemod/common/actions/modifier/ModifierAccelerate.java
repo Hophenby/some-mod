@@ -25,6 +25,6 @@ public class ModifierAccelerate extends AbstractModifierAction implements IMotio
 
     @Override
     public void applyModifier(AbstractModifiableProj proj) {
-        proj.motionModifiersHelper.addHook(this);
+        proj.modifiersHelper.addHook(this);
     }
 }

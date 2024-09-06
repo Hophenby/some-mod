@@ -10,6 +10,9 @@ import static com.example.examplemod.ExampleMod.MODID;
 
 public class EntityRegistry {
     public static final DeferredRegister<EntityType<?>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
+    /**
+     * net.minecraft.world.entity.MobCategory#MISC
+     */
     public static final DeferredHolder<EntityType<?>, EntityType<ProjectileSpark>> PROJECTILE_SPARK = REGISTRAR.register(
             "projectile_spark",
             () -> EntityType.Builder.<ProjectileSpark>of(ProjectileSpark::new, MobCategory.MISC)

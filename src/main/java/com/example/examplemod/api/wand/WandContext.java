@@ -40,8 +40,8 @@ public class WandContext {
     /**
      * Parse the shot
      * Returned state may be used at "triggered shot"
-     * @param state
-     * @return
+     * @param state the state before the shot is parsed
+     * @return the state after the shot is parsed
      */
     public ShotState parseShot(ShotState state) {
         currentState = state;
