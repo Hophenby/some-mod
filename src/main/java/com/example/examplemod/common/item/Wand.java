@@ -8,6 +8,7 @@ import com.example.examplemod.setup.DataComponentRegistry;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -61,7 +62,14 @@ public class Wand extends Item implements IWand {
         // shoot the wand
         context.shoot(worldIn, playerIn, handIn, this);
     }
-
+    /**
+     * Called after the shot is done
+     * This is where the data should be written back to the wand
+     * @param context
+     * @param worldIn
+     * @param playerIn
+     * @param handIn
+     */
     @Override
     public void afterShot(WandContext context, @NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         // write the data back to the wand
@@ -76,5 +84,13 @@ public class Wand extends Item implements IWand {
         LOGGER.debug("Wand data after shot: " + data);
         writeData(playerIn.getItemInHand(handIn), data);
         LOGGER.debug("Wand data after shot: " + readData(playerIn.getItemInHand(handIn)).toString());
+    }
+    @Override
+    public void inventoryTick(@NotNull ItemStack pStack, @NotNull Level pLevel, @NotNull Entity pEntity, int pSlotId, boolean pIsSelected){
+        if (pEntity instanceof Player player) {
+            WandData data = readOrInitData(pStack);
+            data.tick();
+            writeData(pStack, data);
+        }
     }
 }

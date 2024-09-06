@@ -9,6 +9,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import static com.example.examplemod.ExampleMod.MODID;
 
 public class ItemsRegistry {
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, MODID);
-    public static final ItemRegistryWrapper<Wand> WAND = new ItemRegistryWrapper<>(ITEMS.register("wand", ()-> new Wand()));
+    public static final DeferredRegister<Item> REGISTRAR = DeferredRegister.create(BuiltInRegistries.ITEM, MODID);
+    public static final ItemRegistryWrapper<Wand> WAND = new ItemRegistryWrapper<>(REGISTRAR.register("wand", ()-> new Wand()));
 }

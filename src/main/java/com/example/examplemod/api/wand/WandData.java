@@ -1,7 +1,7 @@
 package com.example.examplemod.api.wand;
 
 import com.example.examplemod.RegistryNames;
-import com.example.examplemod.common.actions.TestAction;
+import com.example.examplemod.common.actions.projectile.ActionSpawnSpark;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;
@@ -65,7 +65,7 @@ public class WandData {
 
         // Only for debugging
         if (deck.getActions().isEmpty()) {
-            this.deck.draw(new WrappedWandAction(TestAction.INSTANCE,0));
+            this.deck.draw(new WrappedWandAction(ActionSpawnSpark.INSTANCE,0));
         }
     }
     public WandData(List<NumericWandAttr> allAttr, ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard) {
@@ -135,6 +135,9 @@ public class WandData {
                 ", hand=" + hand +
                 ", discard=" + discard +
                 '}';
+    }
+
+    public void tick() {
     }
 }
 

@@ -16,7 +16,7 @@ public class WandContext {
     private int reloadTicks;
     private boolean startReload = false;
     private int delayTicks;
-    private ShotState state;
+    private ShotState currentState;
 
     public WandContext(ActionCardDeck rawDeck, int storedMana, int reloadTicks, int delayTicks) {
         this.deck.draw(rawDeck.getActions());
@@ -37,7 +37,14 @@ public class WandContext {
         parseShot(state);
         return state;
     }
+    /**
+     * Parse the shot
+     * Returned state may be used at "triggered shot"
+     * @param state
+     * @return
+     */
     public ShotState parseShot(ShotState state) {
+        currentState = state;
         drawActions(state.getNumFirstDraw());
         return state;
     }
@@ -45,7 +52,7 @@ public class WandContext {
         if (world.isClientSide) {
             return;
         }
-        state = createChildState(1, world, player, pHand);
+        currentState = createChildState(1, world, player, pHand);
         LOGGER.info("deck: " + deck.getActions().size() + " hand: " + hand.getActions().size() + " discard: " + discard.getActions().size());
         LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         moveHandToDiscard();
@@ -54,13 +61,17 @@ public class WandContext {
             moveDiscardToDeck();
             orderDeck();
         }
-
+        addProjectilesToWorld(currentState);
         wand.afterShot(this, world, player, pHand);
     }
-    public static void addProjectilesToWorld(Level world, ShotState state) {
-        for (var proj : state.getProjList()) {
-            world.addFreshEntity(proj);
-        }
+
+    /**
+     * Add projectiles to the world
+     * Called after the shot is parsed
+     * @param state
+     */
+    public static void addProjectilesToWorld(ShotState state) {
+        state.applyModifiersAndShoot();
     }
     public void moveDiscardToDeck() {
         deck.draw(discard.getActions());
@@ -109,7 +120,7 @@ public class WandContext {
         // move action to hand
         hand.draw(action);
         // cast action
-        action.action().action(this, state);
+        action.action().action(this, currentState);
     }
 
     public Boolean checkMana(int cost) {
@@ -156,7 +167,7 @@ public class WandContext {
             return delayTicks;
         }
         public ShotState getState() {
-            return state;
+            return currentState;
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.examplemod;
 
 import com.example.examplemod.setup.DataComponentRegistry;
+import com.example.examplemod.setup.EntityRegistry;
 import com.example.examplemod.setup.ItemsRegistry;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -58,10 +59,11 @@ public class ExampleMod
 
         // Register the Deferred Register to the mod event bus so blocks get registered
         // Register the Deferred Register to the mod event bus so items get registered
-        ItemsRegistry.ITEMS.register(modEventBus);
+        ItemsRegistry.REGISTRAR.register(modEventBus);
+        DataComponentRegistry.REGISTRAR.register(modEventBus);
+        EntityRegistry.REGISTRAR.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
-        DataComponentRegistry.REGISTRAR.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (ExampleMod) to respond directly to events.

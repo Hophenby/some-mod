@@ -1,7 +1,7 @@
 package com.example.examplemod.setup;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.api.wand.IWandAction;
+import com.example.examplemod.api.wand.AbstractWandAction;
 import com.example.examplemod.api.wand.ActionCardDeck;
 import com.example.examplemod.api.wand.WandData;
 import com.example.examplemod.api.wand.WrappedWandAction;
@@ -19,9 +19,9 @@ public class DataComponentRegistry {
             "actions",
             builder -> builder.persistent(ActionCardDeck.CODEC).networkSynchronized(ActionCardDeck.STREAM)
     );
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<IWandAction>> ABSTRACT_WAND_ACTION = REGISTRAR.registerComponentType(
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<AbstractWandAction>> ABSTRACT_WAND_ACTION = REGISTRAR.registerComponentType(
             "wand_action",
-            builder -> builder.persistent(IWandAction.CODEC).networkSynchronized(IWandAction.STREAM)
+            builder -> builder.persistent(AbstractWandAction.CODEC).networkSynchronized(AbstractWandAction.STREAM)
     );
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<WandData>> WAND_DATA = REGISTRAR.registerComponentType(
             "wand_data",

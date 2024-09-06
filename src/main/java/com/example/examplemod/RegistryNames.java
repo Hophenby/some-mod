@@ -15,7 +15,10 @@ public enum RegistryNames {
     WAND_ACTION_CARD_HAND("wand_action_card_hand"),
     WAND_ACTION_CARD_DISCARD("wand_action_card_discard"),
 
-    ACTION_TEST("action_test")
+    ACTION_TEST("action_test"),
+    ACTION_MODIFIER_ACCELERATE("action_modifier_accelerate"),
+    ACTION_PROJ_SPARK("action_proj_spark"),
+
 
 
     ;
