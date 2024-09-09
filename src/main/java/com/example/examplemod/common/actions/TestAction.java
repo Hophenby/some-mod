@@ -2,7 +2,7 @@ package com.example.examplemod.common.actions;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.RegistryNames;
-import com.example.examplemod.api.wand.AbstractWandAction;
+import com.example.examplemod.api.actions.AbstractWandAction;
 import com.example.examplemod.api.wand.ShotState;
 import com.example.examplemod.api.wand.WandContext;
 

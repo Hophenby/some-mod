@@ -15,14 +15,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import static com.example.examplemod.ExampleMod.LOGGER;
-
 public class Wand extends Item implements IWand {
     public Wand(Properties properties) {
         super(properties);
     }
     public Wand(){
-        super(new Item.Properties().stacksTo(1).component(DataComponentRegistry.WAND_DATA, new WandData()));
+        super(new Item.Properties().stacksTo(1));
     }
 
 
@@ -43,6 +41,9 @@ public class Wand extends Item implements IWand {
         return data;
     }
     public static void writeData(ItemStack stack, WandData data) {
+        stack.set(DataComponentRegistry.WAND_DATA, data.copy());
+    }
+    public static void writeDataNoCopy(ItemStack stack, WandData data) {
         stack.set(DataComponentRegistry.WAND_DATA, data);
     }
 
@@ -50,47 +51,55 @@ public class Wand extends Item implements IWand {
     public void createShot(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         // read the data from the wand
         WandData data = readOrInitData(playerIn.getItemInHand(handIn));
-        LOGGER.debug("Wand data: " + data);
+        //LOGGER.debug("Wand data: " + data);
+        // check if the wand is ready to shoot
+        if (data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getDoubleAsInt() > 0 ||
+                data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getDoubleAsInt() > 0) {
+            return;
+        }
         // create a new context
         WandContext context = new WandContext(
                 data.getDeck(),
                 data.getHand(),
                 data.getDiscard(),
-                data.getAttr(RegistryNames.WAND_MANA.get()).getInt(),
-                data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getInt(),
-                data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getInt());
+                data.getAttr(RegistryNames.WAND_MANA.get()).getDoubleAsInt(),
+                data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getDoubleAsInt());
         // shoot the wand
         context.shoot(worldIn, playerIn, handIn, this);
     }
     /**
      * Called after the shot is done
      * This is where the data should be written back to the wand
-     * @param context
-     * @param worldIn
-     * @param playerIn
-     * @param handIn
      */
     @Override
     public void afterShot(WandContext context, @NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         // write the data back to the wand
         WandContext.Getters getters = context.getGetters();
-        WandData data = readData(playerIn.getItemInHand(handIn));
+        WandData data = readData(playerIn.getItemInHand(handIn)).copy();
+
+        // decks
         data.setDeck(getters.getDeck());
         data.setHand(getters.getHand());
         data.setDiscard(getters.getDiscard());
-        data.getAttr(RegistryNames.WAND_MANA.get()).setValue(getters.getStoredMana());
-        data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).setValue(getters.getReloadTicks());
+
+        // mana uses, reload and delay ticks
+        data.getAttr(RegistryNames.WAND_MANA.get()).setValue(Math.clamp(getters.getStoredMana(), 0, data.getAttr(RegistryNames.WAND_MAX_MANA.get()).getDoubleAsInt()));
+        data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).setValue(getters.getReloadTicks());
         data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).setValue(getters.getDelayTicks());
-        LOGGER.debug("Wand data after shot: " + data);
+
+        // if the wand finished a turn with reload mark set true, accumulated reload ticks start the reload
+        if (getters.getStartReload()) {
+            data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getDoubleAsInt());
+            data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_BASIC_RELOAD_TICKS.get()).getDoubleAsInt());
+        }
+
         writeData(playerIn.getItemInHand(handIn), data);
-        LOGGER.debug("Wand data after shot: " + readData(playerIn.getItemInHand(handIn)).toString());
+        //LOGGER.debug("Wand data after shot: " + readData(playerIn.getItemInHand(handIn)).toString());
     }
     @Override
     public void inventoryTick(@NotNull ItemStack pStack, @NotNull Level pLevel, @NotNull Entity pEntity, int pSlotId, boolean pIsSelected){
-        if (pEntity instanceof Player player) {
-            WandData data = readOrInitData(pStack);
-            data.tick();
-            writeData(pStack, data);
-        }
+        WandData data = readOrInitData(pStack);
+        data.tick();
+        writeDataNoCopy(pStack, data);
     }
 }

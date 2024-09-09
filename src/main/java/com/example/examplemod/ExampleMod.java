@@ -1,15 +1,10 @@
 package com.example.examplemod;
 
-import com.example.examplemod.setup.DataComponentRegistry;
-import com.example.examplemod.setup.EntityRegistry;
-import com.example.examplemod.setup.ItemsRegistry;
+import com.example.examplemod.setup.*;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -23,9 +18,10 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
+
+import static com.example.examplemod.setup.client.CreativeTab.CREATIVE_MODE_TABS;
 
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -37,32 +33,23 @@ public class ExampleMod
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
     // Create a Deferred Register to hold Blocks which will all be registered under the "examplemod" namespace
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-
-    // Creates a new Block with the id "examplemod:example_block", combining the namespace and path
-
-    // Creates a creative tab with the id "examplemod:example_tab" for the example item, that is placed after the combat tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.examplemod")) //The language key for the title of your CreativeModeTab
-            .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> ItemsRegistry.WAND.get().getDefaultInstance())
-            .displayItems((parameters, output) -> {
-                output.accept(ItemsRegistry.WAND.get());
-            }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public ExampleMod(IEventBus modEventBus, ModContainer modContainer)
     {
         // Register the commonSetup method for modloading
+        WandActionRegistry.setup();
         modEventBus.addListener(this::commonSetup);
-
+        modEventBus.addListener(this::registerEvents);
         // Register the Deferred Register to the mod event bus so blocks get registered
         // Register the Deferred Register to the mod event bus so items get registered
-        ItemsRegistry.REGISTRAR.register(modEventBus);
+        // Register the Deferred Register to the mod event bus so tabs get registered
+        ItemsAndBlocksRegistry.ITEM_REGISTRAR.register(modEventBus);
+        ItemsAndBlocksRegistry.BLOCK_REGISTRAR.register(modEventBus);
         DataComponentRegistry.REGISTRAR.register(modEventBus);
         EntityRegistry.REGISTRAR.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so tabs get registered
+        MenuRegistry.REGISTRAR.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
@@ -77,6 +64,9 @@ public class ExampleMod
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
         ArsRegistry.setup();
+    }
+    public void registerEvents(RegisterEvent event){
+        event.register(Registries.ITEM, ItemsAndBlocksRegistry::onItemRegistry);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

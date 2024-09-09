@@ -1,7 +1,7 @@
 package com.example.examplemod.setup;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.api.wand.AbstractWandAction;
+import com.example.examplemod.api.actions.AbstractWandAction;
 import com.example.examplemod.api.wand.ActionCardDeck;
 import com.example.examplemod.api.wand.WandData;
 import com.example.examplemod.api.wand.WrappedWandAction;

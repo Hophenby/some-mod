@@ -1,7 +1,7 @@
 package com.example.examplemod.common.actions.projectile;
 
 import com.example.examplemod.RegistryNames;
-import com.example.examplemod.api.wand.AbstractWandAction;
+import com.example.examplemod.api.actions.AbstractWandAction;
 import com.example.examplemod.api.wand.ShotState;
 import com.example.examplemod.api.wand.WandContext;
 import com.example.examplemod.common.entity.projectile.ProjectileSpark;

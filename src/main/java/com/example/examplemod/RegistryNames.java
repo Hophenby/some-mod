@@ -7,9 +7,10 @@ public enum RegistryNames {
     WAND_MANA_REGEN("wand_mana_regen"),
     WAND_BASIC_RELOAD_TICKS("wand_basic_reload_ticks"),
     WAND_BASIC_DELAY_TICKS("wand_basic_delay_ticks"),
-    WAND_MAX_ACTION_CARDS("wand_max_action_cards"),
+    WAND_MAX_SLOTS("wand_max_action_cards"),
     WAND_MANA("wand_mana"),
     WAND_REMAINING_RELOAD_TICKS("wand_remaining_reload_ticks"),
+    WAND_ACCUMULATED_RELOAD_TICKS("wand_accumulated_reload_ticks"),
     WAND_REMAINING_DELAY_TICKS("wand_remaining_delay_ticks"),
     WAND_ACTION_CARD_DECK("wand_action_card_deck"),
     WAND_ACTION_CARD_HAND("wand_action_card_hand"),
@@ -30,6 +31,9 @@ public enum RegistryNames {
     }
     public ResourceLocation get() {
         return id;
+    }
+    public String getPath() {
+        return id.getPath();
     }
 
     private static ResourceLocation getRL(String id) {

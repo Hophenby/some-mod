@@ -1,5 +1,6 @@
 package com.example.examplemod.api.wand;
 
+import com.example.examplemod.api.actions.AbstractWandAction;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;

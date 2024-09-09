@@ -18,19 +18,19 @@ public class WandContext {
     private int delayTicks;
     private ShotState currentState;
 
-    public WandContext(ActionCardDeck rawDeck, int storedMana, int reloadTicks, int delayTicks) {
+    public WandContext(ActionCardDeck rawDeck, int storedMana, int reloadTicks) {
         this.deck.draw(rawDeck.getActions());
         this.storedMana = storedMana;
         this.reloadTicks = reloadTicks;
-        this.delayTicks = delayTicks;
+        this.delayTicks = 0;
     }
-    public WandContext(ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard, int storedMana, int reloadTicks, int delayTicks) {
+    public WandContext(ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard, int storedMana, int reloadTicks) {
         this.deck.draw(deck.getActions());
         this.hand.draw(hand.getActions());
         this.discard.draw(discard.getActions());
         this.storedMana = storedMana;
         this.reloadTicks = reloadTicks;
-        this.delayTicks = delayTicks;
+        this.delayTicks = 0;
     }
     public ShotState createChildState(int numFirstDraw,Level world, Player player, InteractionHand hand) {
         ShotState state = new ShotState(numFirstDraw, world, player);
@@ -62,6 +62,8 @@ public class WandContext {
             orderDeck();
         }
         addProjectilesToWorld(currentState);
+        LOGGER.info("deck: " + deck.getActions().size() + " hand: " + hand.getActions().size() + " discard: " + discard.getActions().size());
+        LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         wand.afterShot(this, world, player, pHand);
     }
 
@@ -87,7 +89,7 @@ public class WandContext {
     }
     private Boolean drawAndCast(){
         WrappedWandAction wrappedAction = null;
-        if (hand.isEmpty()) {
+        if (deck.isEmpty()) {
             moveDiscardToDeck();
             orderDeck();
             startReload = true;
@@ -145,29 +147,41 @@ public class WandContext {
         this.startReload = startReload;
     }
     public Getters getGetters() {
-        return new Getters();
+        return new Getters(this);
     }
-    public class Getters {
+
+    /**
+     * Getters for the WandContext
+     * Used to get the data from the context at the end of the shot
+     */
+    public static class Getters {
+        private final WandContext context;
+        public Getters(WandContext context) {
+            this.context = context;
+        }
         public ActionCardDeck getDeck() {
-            return deck;
+            return context.deck;
         }
         public ActionCardDeck getHand() {
-            return hand;
+            return context.hand;
         }
         public ActionCardDeck getDiscard() {
-            return discard;
+            return context.discard;
         }
         public int getStoredMana() {
-            return storedMana;
+            return Math.clamp(context.storedMana, 0, Integer.MAX_VALUE);
         }
         public int getReloadTicks() {
-            return reloadTicks;
+            return Math.clamp(context.reloadTicks, 0, Integer.MAX_VALUE);
         }
         public int getDelayTicks() {
-            return delayTicks;
+            return Math.clamp(context.delayTicks, 0, Integer.MAX_VALUE);
+        }
+        public boolean getStartReload() {
+            return context.startReload;
         }
         public ShotState getState() {
-            return currentState;
+            return context.currentState;
         }
     }
 }

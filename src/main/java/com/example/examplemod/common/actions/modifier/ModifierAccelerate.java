@@ -2,6 +2,7 @@ package com.example.examplemod.common.actions.modifier;
 
 import com.example.examplemod.RegistryNames;
 import com.example.examplemod.api.actions.IMotionModifier;
+import com.example.examplemod.api.actions.WandActionItem;
 import com.example.examplemod.api.entity.AbstractModifiableProj;
 import com.example.examplemod.api.wand.ShotState;
 import com.example.examplemod.api.wand.WandContext;
@@ -15,7 +16,7 @@ public class ModifierAccelerate extends AbstractModifierAction implements IMotio
 
     @Override
     public Vec3 applyPerTick(AbstractModifiableProj proj, Vec3 motion) {
-        return motion.add(0.01, 0.01, 0.01);
+        return motion.add(motion.normalize().multiply(0.1f,0.1f,0.1f));
     }
     @Override
     public void action(WandContext context, ShotState stats) {
@@ -26,5 +27,10 @@ public class ModifierAccelerate extends AbstractModifierAction implements IMotio
     @Override
     public void applyModifier(AbstractModifiableProj proj) {
         proj.modifiersHelper.addHook(this);
+    }
+
+    @Override
+    public WandActionItem getHookItem() {
+        return INSTANCE.getActionItem();
     }
 }

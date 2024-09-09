@@ -18,7 +18,7 @@ public class EntityRegistry {
             () -> EntityType.Builder.<ProjectileSpark>of(ProjectileSpark::new, MobCategory.MISC)
                     .sized(0.25F, 0.25F)
                     .clientTrackingRange(4)
-                    .updateInterval(10)
+                    .updateInterval(2)
                     .noSave()
                     .build("projectile_spark")
     );

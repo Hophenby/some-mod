@@ -1,7 +1,7 @@
 package com.example.examplemod.common.actions.modifier;
 
 import com.example.examplemod.api.entity.AbstractModifiableProj;
-import com.example.examplemod.api.wand.AbstractWandAction;
+import com.example.examplemod.api.actions.AbstractWandAction;
 import com.example.examplemod.api.wand.ShotState;
 import com.example.examplemod.api.wand.WandContext;
 import net.minecraft.resources.ResourceLocation;

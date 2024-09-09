@@ -60,7 +60,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     }
     public int getMaxExistingTicksLimit(){
         return maxExistingTicksLimit;
-    };
+    }
     public int getMaxExistingTicks() {
         return maxExistingTicks;
     }
@@ -71,7 +71,6 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     /**
      * Define the data that should be synchronized between the client and server
      *
-     * @param pBuilder
      */
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder pBuilder) {
@@ -79,6 +78,17 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         pBuilder.define(GREEN, 0);
         pBuilder.define(BLUE, 0);
         pBuilder.define(OWNER_ID, -1);
+    }
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        this.entityData.set(OWNER_ID, tag.getInt("ownerId"));
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putInt("ownerId", this.entityData.get(OWNER_ID));
     }
 
     @Override
@@ -133,17 +143,6 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         }
     }
 
-    @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        this.entityData.set(OWNER_ID, tag.getInt("ownerId"));
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.putInt("ownerId", this.entityData.get(OWNER_ID));
-    }
     /**
      * The next position for ray tracing.
      * See {@link com.hollingsworth.arsnouveau.common.entity.EntityProjectileSpell#getNextHitPosition()}
@@ -200,7 +199,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
      * Helper class to apply tickable motion modifiers to the projectile
      */
     public class ModifiersHelper {
-        private final List<IHookModifier> motionHookList = new ArrayList<IHookModifier>();
+        private final List<IHookModifier> motionHookList = new ArrayList<>();
         public void addHook(IHookModifier hook) {
             motionHookList.add(hook);
         }
