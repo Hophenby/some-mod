@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.taikuus.luomuksia.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "luomuksia.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "ClientTooltipMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
