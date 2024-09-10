@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "luomuksia:damage_type_cut",
+      "required": false
+    }
+  ]
+}

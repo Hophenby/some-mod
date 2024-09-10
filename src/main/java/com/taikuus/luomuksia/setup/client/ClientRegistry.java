@@ -2,8 +2,9 @@ package com.taikuus.luomuksia.setup.client;
 
 import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.client.gui.WandEditingGui;
+import com.taikuus.luomuksia.client.renderer.entity.ProjRendererStoneCutter;
 import com.taikuus.luomuksia.setup.EntityRegistry;
-import com.taikuus.luomuksia.setup.MenuRegistry;
+import com.taikuus.luomuksia.setup.MiscRegistry;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -18,9 +19,10 @@ public class ClientRegistry {
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(EntityRegistry.PROJECTILE_SPARK.get(), NoopRenderer::new);
+        event.registerEntityRenderer(EntityRegistry.PROJECTILE_STONE_CUTTER.get(), ProjRendererStoneCutter::new);
     }
     @SubscribeEvent
     public static void registerMenuScreens(RegisterMenuScreensEvent event){
-        event.register(MenuRegistry.WAND_EDITING_MENU.get(), WandEditingGui::new);
+        event.register(MiscRegistry.WAND_EDITING_MENU.get(), WandEditingGui::new);
     }
 }

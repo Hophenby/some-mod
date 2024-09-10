@@ -62,6 +62,7 @@ public class ShotState {
                 for (AbstractModifierAction modifier : modifierList) {
                     modProj.applyModifier(modifier);
                 }
+                modProj.shoot();
             }
         }
         for (Entity proj : projList) {

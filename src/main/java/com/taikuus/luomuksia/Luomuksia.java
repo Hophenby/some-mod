@@ -48,7 +48,7 @@ public class Luomuksia
         ItemsAndBlocksRegistry.BLOCK_REGISTRAR.register(modEventBus);
         DataComponentRegistry.REGISTRAR.register(modEventBus);
         EntityRegistry.REGISTRAR.register(modEventBus);
-        MenuRegistry.REGISTRAR.register(modEventBus);
+        MiscRegistry.REGISTRAR.register(modEventBus);
         CreativeTab.CREATIVE_MODE_TABS.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.

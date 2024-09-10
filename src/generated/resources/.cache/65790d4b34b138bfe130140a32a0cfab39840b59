@@ -1,0 +1,4 @@
+// 1.21	2024-09-10T23:30:10.64177	Tags for minecraft:damage_type mod id luomuksia
+3fba7ffd8adc70bb13549bc4cd1fcf895afcd6a6 data/minecraft/tags/damage_type/always_hurts_ender_dragons.json
+3fba7ffd8adc70bb13549bc4cd1fcf895afcd6a6 data/minecraft/tags/damage_type/bypasses_armor.json
+3fba7ffd8adc70bb13549bc4cd1fcf895afcd6a6 data/minecraft/tags/damage_type/bypasses_cooldown.json

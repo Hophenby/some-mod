@@ -19,6 +19,9 @@ public enum RegistryNames {
     ACTION_TEST("action_test"),
     ACTION_MODIFIER_ACCELERATE("action_modifier_accelerate"),
     ACTION_PROJ_SPARK("action_proj_spark"),
+    ACTION_PROJ_SC("action_proj_stonecutter"),
+
+    DAMAGE_TYPE_CUT("damage_type_cut"),
 
 
 
@@ -36,7 +39,7 @@ public enum RegistryNames {
         return id.getPath();
     }
 
-    private static ResourceLocation getRL(String id) {
+    public static ResourceLocation getRL(String id) {
         return ResourceLocation.fromNamespaceAndPath(Luomuksia.MODID, id);
     }
 }

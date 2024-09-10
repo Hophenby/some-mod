@@ -1,6 +1,7 @@
 package com.taikuus.luomuksia.setup;
 
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileSpark;
+import com.taikuus.luomuksia.common.entity.projectile.ProjectileStoneCutter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.*;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -21,6 +22,15 @@ public class EntityRegistry {
                     .updateInterval(2)
                     .noSave()
                     .build("projectile_spark")
+    );
+    public static final DeferredHolder<EntityType<?>, EntityType<ProjectileStoneCutter>> PROJECTILE_STONE_CUTTER = REGISTRAR.register(
+            "projectile_stone_cutter",
+            () -> EntityType.Builder.<ProjectileStoneCutter>of(ProjectileStoneCutter::new, MobCategory.MISC)
+                    .sized(0.5625F,1.0F )
+                    .clientTrackingRange(4)
+                    .updateInterval(2)
+                    .noSave()
+                    .build("projectile_stone_cutter")
     );
 
 }

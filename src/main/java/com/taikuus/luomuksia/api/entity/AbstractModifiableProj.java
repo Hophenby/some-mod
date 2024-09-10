@@ -4,7 +4,8 @@ import com.taikuus.luomuksia.api.actions.IHookModifier;
 import com.taikuus.luomuksia.api.actions.IMotionModifier;
 import com.taikuus.luomuksia.api.actions.IOnHitModifier;
 import com.taikuus.luomuksia.common.actions.modifier.AbstractModifierAction;
-import com.hollingsworth.arsnouveau.api.util.DamageUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -12,6 +13,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -21,6 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -40,10 +43,14 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
      */
     public int maxExistingTicksLimit = 20 * 3600; // an hour
     public boolean hitLiquid = false;
-    public boolean hitBlock = false;
+    public boolean piercing = false;
     public float damage = 0.0f;
+    public float knockback = 0.0f;
     public float gravity = 0.03f;
     public float fricCoef = 0.97f;
+    public float inaccuracy = 0.0f;
+    public float initVelocity = 1.0f;
+    public Vec3 initAngle = Vec3.ZERO;
     public static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> RED = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> GREEN = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
@@ -90,11 +97,14 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         super.addAdditionalSaveData(tag);
         tag.putInt("ownerId", this.entityData.get(OWNER_ID));
     }
+    public boolean isExpired() {
+        return timer > getMaxExistingTicks();
+    }
 
     @Override
     public void tick() {
         timer++;
-        if (!this.level().isClientSide && timer > getMaxExistingTicks()) {
+        if (!this.level().isClientSide && this.isExpired()) {
             this.attemptRemoval();
             return;
         }
@@ -110,23 +120,57 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         super.tick();
     }
     @Override
-    protected void onHit(HitResult result){
+    protected void onHit(@NotNull HitResult result){
         result = transformHitResult(result);
-        if (this.level().isClientSide) {
+        if (result == null) {
             return;
         }
-        if (result instanceof EntityHitResult entityResult && this.getDamage() > 0){
-            entityResult.getEntity().hurt(this.getDamageSource(), this.getDamage());
+        super.onHit(result);
+    }
+    @Override
+    protected void onHitEntity(@NotNull EntityHitResult entityResult) {
+        super.onHitEntity(entityResult);
+        if (!this.level().isClientSide) {
+            if (this.getDamage() > 0){
+                entityResult.getEntity().hurt(this.getDamageSource(), this.getDamage());
+                if (this.getOwner() != null &&
+                    this.getOwner() instanceof LivingEntity livingOwner) {
+                    livingOwner.setLastHurtMob(entityResult.getEntity());
+                }
+            }
+            if (this.knockback > 0) {
+                entityResult.getEntity().push(this.getDeltaMovement().x, this.getDeltaMovement().y, this.getDeltaMovement().z);
+            }
+            if (!this.piercing) {
+                attemptRemoval();
+            }
         }
-        attemptRemoval();
+    }
+    @Override
+    protected void onHitBlock(BlockHitResult pResult){
+        super.onHitBlock(pResult);
+        if (!this.level().isClientSide) {
+            attemptRemoval();
+        }
     }
     public DamageSource getDamageSource() {
-        return DamageUtil.source(this.level(), MOB_PROJECTILE, this.getOwner());
+        return new DamageSource(this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(MOB_PROJECTILE), this, this.getOwner());
     }
 
-    private void attemptRemoval() {
+    protected void attemptRemoval() {
         this.modifiersHelper.applyHitHooks(getHitResult());
         this.remove(RemovalReason.DISCARDED);
+    }
+    /**
+     * Similar to setArrowHeading, it's point the throwable entity to a x, y, z direction.
+     */
+    public void shoot() {
+        super.shoot(initAngle.x, initAngle.y, initAngle.z, initVelocity, inaccuracy);
+    }
+    public void setShootState(Vec3 angle, float velocity, float inaccuracy) {
+        this.initAngle = angle;
+        this.initVelocity = velocity;
+        this.inaccuracy = inaccuracy;
     }
 
 
@@ -204,7 +248,11 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             motionHookList.add(hook);
         }
         public Vec3 applyMotiveHooks(Vec3 motion) {
-            motion = motion.add(0, -gravity, 0).multiply(fricCoef, fricCoef, fricCoef);
+            motion = motion.add(0, -gravity, 0).scale(fricCoef);
+            if (onGround()){
+                BlockPos groundPos = getBlockPosBelowThatAffectsMyMovement();
+                motion = motion.scale(level().getBlockState(groundPos).getFriction(level(), groundPos, AbstractModifiableProj.this));
+            }
             if (motionHookList.isEmpty()) {
                 return motion;
             }

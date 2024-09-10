@@ -8,7 +8,7 @@ import com.taikuus.luomuksia.api.wand.WandData;
 import com.taikuus.luomuksia.api.wand.WrappedWandAction;
 import com.taikuus.luomuksia.common.item.Wand;
 import com.taikuus.luomuksia.setup.ItemsAndBlocksRegistry;
-import com.taikuus.luomuksia.setup.MenuRegistry;
+import com.taikuus.luomuksia.setup.MiscRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -41,7 +41,7 @@ public class WandEditingMenu extends AbstractContainerMenu {
         this(pContainerId, pPlayerInventory, ContainerLevelAccess.NULL);
     }
     public WandEditingMenu(int pContainerId, Inventory pPlayerInventory, ContainerLevelAccess pAccess) {
-        super(MenuRegistry.WAND_EDITING_MENU.get(), pContainerId);
+        super(MiscRegistry.WAND_EDITING_MENU.get(), pContainerId);
         this.access = pAccess;
         this.player = pPlayerInventory.player;
         this.wandContents = new WandContents(this, 0, 18);

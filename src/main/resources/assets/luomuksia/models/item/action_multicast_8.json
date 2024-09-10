@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "luomuksia:item/wand/layer_multicast",
+    "layer1": "luomuksia:item/wand/multi_8"
+  }
+}

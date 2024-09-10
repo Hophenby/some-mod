@@ -23,7 +23,7 @@ public class WandData {
             new CodecableWandAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get(), 0),
             new CodecableWandAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get(), 0),
             new CodecableWandAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get(), 0)
-    );
+    );// TODO make this more customizable
     public static final Codec<WandData> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
                     Codec.list(CodecableWandAttr.CODEC).fieldOf("allAttr").forGetter(WandData::attrList),
