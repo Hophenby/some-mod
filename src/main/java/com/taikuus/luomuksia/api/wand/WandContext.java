@@ -16,7 +16,8 @@ public class WandContext {
     private int reloadTicks;
     private boolean startReload = false;
     private int delayTicks;
-    private ShotState currentState;
+    private ShotStates currentState;
+    private boolean disableActionDrawing = false;
 
     public WandContext(ActionCardDeck rawDeck, int storedMana, int reloadTicks) {
         this.deck.draw(rawDeck.getActions());
@@ -32,8 +33,8 @@ public class WandContext {
         this.reloadTicks = reloadTicks;
         this.delayTicks = 0;
     }
-    public ShotState createChildState(int numFirstDraw,Level world, Player player, InteractionHand hand) {
-        ShotState state = new ShotState(numFirstDraw, world, player);
+    public ShotStates createChildState(int numFirstDraw, Level world, Player player, InteractionHand hand) {
+        ShotStates state = new ShotStates(numFirstDraw, world, player);
         parseShot(state);
         return state;
     }
@@ -43,7 +44,7 @@ public class WandContext {
      * @param state the state before the shot is parsed
      * @return the state after the shot is parsed
      */
-    public ShotState parseShot(ShotState state) {
+    public ShotStates parseShot(ShotStates state) {
         currentState = state;
         drawActions(state.getNumFirstDraw());
         return state;
@@ -72,7 +73,7 @@ public class WandContext {
      * Called after the shot is parsed
      * @param state
      */
-    public static void addProjectilesToWorld(ShotState state) {
+    public static void addProjectilesToWorld(ShotStates state) {
         state.applyModifiersAndShoot();
     }
     public void moveDiscardToDeck() {
@@ -114,8 +115,14 @@ public class WandContext {
     }
     public void drawActions(int num) {
         for (int i = 0; i < num; i++) {
-            if(!drawAndCast()) while (!deck.isEmpty()) if (drawAndCast()) break;
+            if(!disableActionDrawing && !drawAndCast()) while (!deck.isEmpty()) if (drawAndCast()) break;
         }
+    }
+    public void disableActionDrawing() {
+        disableActionDrawing = true;
+    }
+    public void enableActionDrawing() {
+        disableActionDrawing = false;
     }
 
     private void castAction(WrappedWandAction action) {
@@ -145,6 +152,16 @@ public class WandContext {
     }
     public void setStartReload(Boolean startReload) {
         this.startReload = startReload;
+    }
+
+    public ActionCardDeck getDeck() {
+        return deck;
+    }
+    public ActionCardDeck getHand() {
+        return hand;
+    }
+    public ActionCardDeck getDiscard() {
+        return discard;
     }
     public Getters getGetters() {
         return new Getters(this);
@@ -180,7 +197,7 @@ public class WandContext {
         public boolean getStartReload() {
             return context.startReload;
         }
-        public ShotState getState() {
+        public ShotStates getState() {
             return context.currentState;
         }
     }

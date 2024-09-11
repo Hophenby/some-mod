@@ -1,8 +1,8 @@
 package com.taikuus.luomuksia.api.wand;
 
-import com.taikuus.luomuksia.RegistryNames;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.taikuus.luomuksia.RegistryNames;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -11,19 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class WandData {
-    public final List<CodecableWandAttr> allAttr = List.of(
-            new CodecableWandAttr(RegistryNames.WAND_MAX_MANA.get(), 100),
-            new CodecableWandAttr(RegistryNames.WAND_MANA_REGEN.get(), 1),
-            new CodecableWandAttr(RegistryNames.WAND_BASIC_RELOAD_TICKS.get(), 20),
-            new CodecableWandAttr(RegistryNames.WAND_BASIC_DELAY_TICKS.get(), 10),
-            new CodecableWandAttr(RegistryNames.WAND_MAX_SLOTS.get(), 5),
 
-            new CodecableWandAttr(RegistryNames.WAND_MANA.get(), 100),
-            new CodecableWandAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get(), 0),
-            new CodecableWandAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get(), 0),
-            new CodecableWandAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get(), 0)
-    );// TODO make this more customizable
+public class WandData {
+    public final List<CodecableWandAttr> allAttr = new WandAttrProvider.TieredAttrBuilder(1).build();
     public static final Codec<WandData> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
                     Codec.list(CodecableWandAttr.CODEC).fieldOf("allAttr").forGetter(WandData::attrList),
@@ -66,10 +56,13 @@ public class WandData {
     public WandData(List<CodecableWandAttr> allAttr, ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard) {
         this(deck, hand, discard);
         // overwrite the default allAttr
+        this.overwriteAllAttr(allAttr);
+    }
+    public void overwriteAllAttr(List<CodecableWandAttr> allAttr) {
         for (CodecableWandAttr attr : allAttr) {
             for (CodecableWandAttr attr2 : this.allAttr) {
                 if (attr.getId().equals(attr2.getId())) {
-                    attr2.setValue(attr.getDouble());
+                    attr2.setValue(attr.getValue());
                     break;
                 }
             }
@@ -77,6 +70,13 @@ public class WandData {
     }
     public WandData() {
         this(new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
+    }
+    public static WandData fromTier(int tier) {
+        //Luomuksia.LOGGER.debug("Creating wand data from tier: " + tier);
+        return new WandData(new WandAttrProvider.TieredAttrBuilder(tier).build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
+    }
+    public static WandData custom(WandAttrProvider.TieredAttrBuilder builder) {
+        return new WandData(builder.build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
     }
     public WandData copy() {
         return new WandData(allAttr, deck.copy(), hand.copy(), discard.copy());
@@ -145,16 +145,14 @@ public class WandData {
     public void tick() {
         CodecableWandAttr manaRegen = getAttr(RegistryNames.WAND_MANA_REGEN.get());
         getAttr(RegistryNames.WAND_MANA.get()).setValue(
-                Math.min(getAttr(RegistryNames.WAND_MANA.get()).getDoubleAsInt() + manaRegen.getDoubleAsInt(),
-                        getAttr(RegistryNames.WAND_MAX_MANA.get()).getDoubleAsInt())
+                Math.min(getAttr(RegistryNames.WAND_MANA.get()).getValue() + manaRegen.getValue(),
+                        getAttr(RegistryNames.WAND_MAX_MANA.get()).getValue())
         );
         getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).setValue(
-                Math.max(getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getDoubleAsInt() - 1,
-                        0)
+                Math.max(getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() - 1, 0)
         );
         getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).setValue(
-                Math.max(getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getDoubleAsInt() - 1,
-                        0)
+                Math.max(getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() - 1, 0)
         );
 
     }

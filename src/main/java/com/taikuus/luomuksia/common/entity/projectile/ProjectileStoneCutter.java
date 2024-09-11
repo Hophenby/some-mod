@@ -1,6 +1,5 @@
 package com.taikuus.luomuksia.common.entity.projectile;
 
-import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import com.taikuus.luomuksia.setup.MiscRegistry;
@@ -46,19 +45,18 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
 
     public ProjectileStoneCutter(Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         super(EntityRegistry.PROJECTILE_STONE_CUTTER.get(), pOwner, pX, pY, pZ, pLevel);
+        maxExistingTicks = 20 * 7;
         damage = 1.0f;
     }
     @Override
     public void tick(){
         super.tick();
-        Float velocity = (float) this.getDeltaMovement().length();
         eyeRelatedXRot = (timer);
         eyeRelatedYRot = ((float) (Math.PI / 2f));
         if (!this.level().isClientSide) {
             if ((this.getDeltaMovement().length() < 0.2f && this.onGround()) || this.removeFlag) {
                 this.attemptRemoval();
             }
-            BlockPos blockPos = this.blockPosition();
             AABB aabb = this.getBoundingBox().inflate(0.1, 0.1, 0.1);
             BlockPos.betweenClosedStream(aabb).forEach(pos -> {
                 if (!this.level().getBlockState(pos).isAir()) {
@@ -72,13 +70,14 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
     public boolean canCollideWith(@NotNull Entity pEntity) {
         return super.canCollideWith(pEntity) && pEntity != getOwner();
     }
-    protected void attemptRemoval(){
-        this.modifiersHelper.applyHitHooks(getHitResult());
+    @Override
+    protected void beforeRemoval(){
+        super.beforeRemoval();
         BlockPos blockPos = this.blockPosition();
         if(!this.isExpired()) {
             if (this.level().getBlockState(blockPos).is(BlockTags.REPLACEABLE)) {
 
-                this.level().setBlock(blockPos, STONECUTTER.defaultBlockState().rotate(Rotation.getRandom(this.random)), 3);
+                this.level().setBlock(blockPos, STONECUTTER.defaultBlockState().rotate(this.level(), blockPos, Rotation.getRandom(this.random)), 3);
             } else {
                 ItemEntity sc = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(), new ItemStack(STONECUTTER.asItem()));
                 this.level().addFreshEntity(sc);

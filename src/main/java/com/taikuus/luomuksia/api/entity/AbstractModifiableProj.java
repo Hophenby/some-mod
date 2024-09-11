@@ -1,9 +1,10 @@
 package com.taikuus.luomuksia.api.entity;
 
-import com.taikuus.luomuksia.api.actions.IHookModifier;
+import com.taikuus.luomuksia.api.actions.IModifier;
+import com.taikuus.luomuksia.api.actions.IModifierAction;
 import com.taikuus.luomuksia.api.actions.IMotionModifier;
 import com.taikuus.luomuksia.api.actions.IOnHitModifier;
-import com.taikuus.luomuksia.common.actions.modifier.AbstractModifierAction;
+import com.taikuus.luomuksia.api.wand.ShotStates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -51,6 +52,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public float inaccuracy = 0.0f;
     public float initVelocity = 1.0f;
     public Vec3 initAngle = Vec3.ZERO;
+    public ShotStates triggeredShot;
     public static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> RED = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> GREEN = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
@@ -158,8 +160,15 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     }
 
     protected void attemptRemoval() {
-        this.modifiersHelper.applyHitHooks(getHitResult());
+        this.beforeRemoval();
         this.remove(RemovalReason.DISCARDED);
+    }
+    protected void beforeRemoval() {
+        this.modifiersHelper.applyHitHooks(getHitResult());
+        if (!this.level().isClientSide && this.triggeredShot != null) {
+            this.triggeredShot.addModifier(proj -> proj.setPos(AbstractModifiableProj.this.position()));
+            this.triggeredShot.applyModifiersAndShoot();
+        }
     }
     /**
      * Similar to setArrowHeading, it's point the throwable entity to a x, y, z direction.
@@ -167,14 +176,14 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public void shoot() {
         super.shoot(initAngle.x, initAngle.y, initAngle.z, initVelocity, inaccuracy);
     }
-    public void setShootState(Vec3 angle, float velocity, float inaccuracy) {
+    public void setInitMotion(Vec3 angle, float velocity, float inaccuracy) {
         this.initAngle = angle;
         this.initVelocity = velocity;
         this.inaccuracy = inaccuracy;
     }
 
 
-    public void applyModifier(AbstractModifierAction modifier) {
+    public void applyModifier(IModifierAction modifier) {
         modifier.applyModifier(this);
     }
     @Override
@@ -239,12 +248,17 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     protected EntityHitResult findHitEntity(Vec3 pStartVec, Vec3 pEndVec) {
         return ProjectileUtil.getEntityHitResult(this.level(), this, pStartVec, pEndVec, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), this::canHitEntity);
     }
+
+    public void addTrigger(ShotStates state) {
+        this.triggeredShot = state;
+    }
+
     /**
      * Helper class to apply tickable motion modifiers to the projectile
      */
     public class ModifiersHelper {
-        private final List<IHookModifier> motionHookList = new ArrayList<>();
-        public void addHook(IHookModifier hook) {
+        private final List<IModifier> motionHookList = new ArrayList<>();
+        public void addHook(IModifier hook) {
             motionHookList.add(hook);
         }
         public Vec3 applyMotiveHooks(Vec3 motion) {
@@ -256,7 +270,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             if (motionHookList.isEmpty()) {
                 return motion;
             }
-            for (IHookModifier hook : motionHookList) {
+            for (IModifier hook : motionHookList) {
                 if (hook instanceof IMotionModifier mHook) {
                     motion = mHook.applyPerTick(AbstractModifiableProj.this, motion);
                 }
@@ -267,7 +281,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             if (motionHookList.isEmpty()) {
                 return;
             }
-            for (IHookModifier hook : motionHookList) {
+            for (IModifier hook : motionHookList) {
                 if (hook instanceof IOnHitModifier hHook) {
                     hHook.onHit(AbstractModifiableProj.this, result);
                 }

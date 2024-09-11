@@ -1,6 +1,7 @@
 package com.taikuus.luomuksia.setup.client;
 
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
+import com.taikuus.luomuksia.common.item.Wand;
 import com.taikuus.luomuksia.setup.ItemsAndBlocksRegistry;
 import com.taikuus.luomuksia.setup.WandActionRegistry;
 import net.minecraft.core.registries.Registries;
@@ -23,7 +24,11 @@ public class CreativeTab {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> ItemsAndBlocksRegistry.WAND.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(ItemsAndBlocksRegistry.WAND.get());
+                output.accept(Wand.createWand(2));
+                output.accept(Wand.createWand(3));
+                output.accept(Wand.createWand(6));
+                output.accept(Wand.createWand(9));
+                output.accept(Wand.createWand(12));
                 output.accept(ItemsAndBlocksRegistry.WAND_EDITING_TABLE_ITEM.get());
                 for (AbstractWandAction action : WandActionRegistry.getAllRegistries().values()) {
                     output.accept(action.getActionItem());

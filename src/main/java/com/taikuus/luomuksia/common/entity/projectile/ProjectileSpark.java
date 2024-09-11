@@ -15,7 +15,7 @@ public class ProjectileSpark extends AbstractModifiableProj {
     }
     public ProjectileSpark(Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         super(EntityRegistry.PROJECTILE_SPARK.get(), pOwner, pX, pY, pZ, pLevel);
-        maxExistingTicksLimit = 20 * 3600;
+        maxExistingTicks = 20 * 4;
         damage = 1.0f;
     }
 

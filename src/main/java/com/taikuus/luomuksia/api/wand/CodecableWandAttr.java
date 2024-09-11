@@ -10,45 +10,30 @@ import net.minecraft.resources.ResourceLocation;
 public class CodecableWandAttr {
     public static final Codec<CodecableWandAttr> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(CodecableWandAttr::getId),
-            Codec.DOUBLE.fieldOf("value").forGetter(CodecableWandAttr::getDouble)
-    ).apply(instance, CodecableWandAttr::new));
-    public static final Codec<CodecableWandAttr> INT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("id").forGetter(CodecableWandAttr::getId),
-            Codec.INT.fieldOf("value").forGetter(CodecableWandAttr::getDoubleAsInt)
+            Codec.INT.fieldOf("value").forGetter(CodecableWandAttr::getValue)
     ).apply(instance, CodecableWandAttr::new));
     public static final StreamCodec<FriendlyByteBuf, CodecableWandAttr> STREAM = StreamCodec.composite(
             ResourceLocation.STREAM_CODEC, CodecableWandAttr::getId,
-            ByteBufCodecs.DOUBLE, CodecableWandAttr::getDouble,
-            CodecableWandAttr::new
-    );
-    public static final StreamCodec<FriendlyByteBuf, CodecableWandAttr> INT_STREAM = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC, CodecableWandAttr::getId,
-            ByteBufCodecs.INT, CodecableWandAttr::getDoubleAsInt,
+            ByteBufCodecs.INT, CodecableWandAttr::getValue,
             CodecableWandAttr::new
     );
     private final ResourceLocation id;
-    private double value;
-    public CodecableWandAttr(ResourceLocation id, double value) {
+    private int value;
+    public CodecableWandAttr(ResourceLocation id, int value) {
         this.id = id;
         this.value = value;
-    }
-    public CodecableWandAttr(ResourceLocation id, int value) {
-        this(id, (double) value);
     }
     public ResourceLocation getId() {
         return id;
     }
-    public double getDouble() {
+    public Integer getValue() {
         return value;
     }
-    public Integer getDoubleAsInt() {
-        return (int) value;
-    }
-    public boolean getDoubleAsBoolean() {
+    public boolean getIntAsBoolean() {
         return value != 0;
     }
 
-    public void setValue(double value) {
+    public void setValue(int value) {
         this.value = value;
     }
     public void setValue(boolean value) {

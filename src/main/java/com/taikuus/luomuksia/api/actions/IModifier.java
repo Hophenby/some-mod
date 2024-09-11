@@ -1,5 +1,5 @@
 package com.taikuus.luomuksia.api.actions;
 
-public interface IHookModifier {
+public interface IModifier {
     WandActionItem getHookItem();
 }

@@ -1,9 +1,11 @@
 package com.taikuus.luomuksia.setup;
 
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
-import com.taikuus.luomuksia.common.actions.TestAction;
+import com.taikuus.luomuksia.common.actions.other.ActionAddTrigger;
+import com.taikuus.luomuksia.common.actions.other.TestAction;
 import com.taikuus.luomuksia.common.actions.modifier.ModifierAccelerate;
-import com.taikuus.luomuksia.common.actions.multicast.ActionMultiCast;
+import com.taikuus.luomuksia.common.actions.multicast.ActionMulticast;
+import com.taikuus.luomuksia.common.actions.multicast.ActionScatteredMulticast;
 import com.taikuus.luomuksia.common.actions.projectile.ActionSpawnSpark;
 import com.taikuus.luomuksia.common.actions.projectile.ActionSpawnStoneCutter;
 import net.minecraft.resources.ResourceLocation;
@@ -31,9 +33,11 @@ public class WandActionRegistry {
         register(ModifierAccelerate.INSTANCE);
         register(ActionSpawnSpark.INSTANCE);
         register(ActionSpawnStoneCutter.INSTANCE);
-        register(ActionMultiCast.INSTANCEx2);
-        register(ActionMultiCast.INSTANCEx3);
-        register(ActionMultiCast.INSTANCEx4);
-        register(ActionMultiCast.INSTANCEx8);
+        register(ActionMulticast.INSTANCEx2);
+        register(ActionMulticast.INSTANCEx3);
+        register(ActionMulticast.INSTANCEx4);
+        register(ActionMulticast.INSTANCEx8);
+        register(ActionScatteredMulticast.INSTANCE);
+        register(ActionAddTrigger.INSTANCE);
     }
 }

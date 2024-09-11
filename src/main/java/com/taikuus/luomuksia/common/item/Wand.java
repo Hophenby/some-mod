@@ -5,6 +5,7 @@ import com.taikuus.luomuksia.api.wand.IWand;
 import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.api.wand.WandData;
 import com.taikuus.luomuksia.setup.DataComponentRegistry;
+import com.taikuus.luomuksia.setup.ItemsAndBlocksRegistry;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -16,9 +17,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public class Wand extends Item implements IWand {
-    public Wand(Properties properties) {
-        super(properties);
-    }
     public Wand(){
         super(new Item.Properties().stacksTo(1));
     }
@@ -46,6 +44,12 @@ public class Wand extends Item implements IWand {
     public static void writeDataNoCopy(ItemStack stack, WandData data) {
         stack.set(DataComponentRegistry.WAND_DATA, data);
     }
+    public static ItemStack createWand(int tier){
+        ItemStack stack = new ItemStack(ItemsAndBlocksRegistry.WAND.get());
+        WandData data = WandData.fromTier(tier);
+        writeData(stack, data);
+        return stack;
+    }
 
     @Override
     public void createShot(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
@@ -53,8 +57,8 @@ public class Wand extends Item implements IWand {
         WandData data = readOrInitData(playerIn.getItemInHand(handIn));
         //LOGGER.debug("Wand data: " + data);
         // check if the wand is ready to shoot
-        if (data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getDoubleAsInt() > 0 ||
-                data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getDoubleAsInt() > 0) {
+        if (data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() > 0 ||
+                data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() > 0) {
             return;
         }
         // create a new context
@@ -62,8 +66,8 @@ public class Wand extends Item implements IWand {
                 data.getDeck(),
                 data.getHand(),
                 data.getDiscard(),
-                data.getAttr(RegistryNames.WAND_MANA.get()).getDoubleAsInt(),
-                data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getDoubleAsInt());
+                data.getAttr(RegistryNames.WAND_MANA.get()).getValue(),
+                data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getValue());
         // shoot the wand
         context.shoot(worldIn, playerIn, handIn, this);
     }
@@ -83,15 +87,17 @@ public class Wand extends Item implements IWand {
         data.setDiscard(getters.getDiscard());
 
         // mana uses, reload and delay ticks
-        data.getAttr(RegistryNames.WAND_MANA.get()).setValue(Math.clamp(getters.getStoredMana(), 0, data.getAttr(RegistryNames.WAND_MAX_MANA.get()).getDoubleAsInt()));
+        data.getAttr(RegistryNames.WAND_MANA.get()).setValue(Math.clamp(getters.getStoredMana(), 0, data.getAttr(RegistryNames.WAND_MAX_MANA.get()).getValue()));
         data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).setValue(getters.getReloadTicks());
         data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).setValue(getters.getDelayTicks());
 
         // if the wand finished a turn with reload mark set true, accumulated reload ticks start the reload
         if (getters.getStartReload()) {
-            data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getDoubleAsInt());
-            data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_BASIC_RELOAD_TICKS.get()).getDoubleAsInt());
+            data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getValue());
+            data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_BASIC_RELOAD_TICKS.get()).getValue());
         }
+        // apply the cooldown
+        playerIn.getCooldowns().addCooldown(this, getters.getStartReload() ? Math.max(getters.getDelayTicks(), getters.getReloadTicks()) : getters.getDelayTicks());
 
         writeData(playerIn.getItemInHand(handIn), data);
         //LOGGER.debug("Wand data after shot: " + readData(playerIn.getItemInHand(handIn)).toString());

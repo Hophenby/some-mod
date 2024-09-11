@@ -1,7 +1,7 @@
 package com.taikuus.luomuksia.api.wand;
 
+import com.taikuus.luomuksia.api.actions.IModifierAction;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
-import com.taikuus.luomuksia.common.actions.modifier.AbstractModifierAction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -9,17 +9,20 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShotState {
+public class ShotStates {
     private final List<Entity> projList = new ArrayList<>();
-    private final List<AbstractModifierAction> modifierList = new ArrayList<>();
+    private final List<IModifierAction> modifierList = new ArrayList<>();
     private final int numFirstDraw;
     private final Player player;
     private final Level world;
 
-    public ShotState(int numFirstDraw, Level world, Player player) {
+    public ShotStates(int numFirstDraw, Level world, Player player) {
         this.numFirstDraw = numFirstDraw;
         this.player = player;
         this.world = world;
+    }
+    public ShotStates childState() {
+        return new ShotStates(numFirstDraw, world, player);
     }
     public Player getPlayer() {
         return player;
@@ -34,6 +37,9 @@ public class ShotState {
     public List<Entity> getProjList() {
         return projList;
     }
+    public Entity lastProj() {
+        return projList.get(projList.size() - 1);
+    }
 
     /**
      * Add a projectile to the list of projectiles.
@@ -47,9 +53,9 @@ public class ShotState {
     /**
      * Add a modifier INSTANCE to the list of modifiers
      *
-     * @param modifier
+     * @param modifier the modifier to add
      */
-    public void addModifier(AbstractModifierAction modifier) {
+    public void addModifier(IModifierAction modifier) {
         modifierList.add(modifier);
     }
 
@@ -59,7 +65,7 @@ public class ShotState {
     public void applyModifiersAndShoot() {
         for (Entity proj : projList) {
             if (proj instanceof AbstractModifiableProj modProj) {
-                for (AbstractModifierAction modifier : modifierList) {
+                for (IModifierAction modifier : modifierList) {
                     modProj.applyModifier(modifier);
                 }
                 modProj.shoot();
