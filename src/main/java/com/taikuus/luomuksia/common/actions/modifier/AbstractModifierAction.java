@@ -8,8 +8,8 @@ import com.taikuus.luomuksia.common.actions.EnumActionTypes;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class AbstractModifierAction extends AbstractWandAction implements IModifierAction {
-    public AbstractModifierAction(ResourceLocation id, String name, String desc, EnumActionTypes type){
-        super(id, name, desc, type);
+    public AbstractModifierAction(ResourceLocation id){
+        super(id, EnumActionTypes.MODIFIER);
     }
 
     @Override

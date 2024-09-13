@@ -14,9 +14,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @param actions
  */
 public record ActionCardDeck(List<WrappedWandAction> actions){
-    public static final Codec<ActionCardDeck> CODEC = WrappedWandAction.CODEC.listOf().xmap(ActionCardDeck::new, ActionCardDeck::getActions);
+    public static final Codec<ActionCardDeck> CODEC = WrappedWandAction.CODEC.listOf().xmap(ActionCardDeck::new, ActionCardDeck::actions);
     public static final StreamCodec<FriendlyByteBuf, ActionCardDeck> STREAM = StreamCodec.of(
-            (buf, deck) -> buf.writeCollection(deck.getActions(), WrappedWandAction.STREAM),
+            (buf, deck) -> buf.writeCollection(deck.actions(), WrappedWandAction.STREAM),
             (buf) -> {
                 int size = buf.readVarInt();
                 List<WrappedWandAction> actions = new CopyOnWriteArrayList<>();
@@ -27,15 +27,12 @@ public record ActionCardDeck(List<WrappedWandAction> actions){
             }
     );
 
-    public List<WrappedWandAction> getActions() {
-        return actions;
-    }
     public void orderDeck() {
         // order the deck using the order of the WrappedGunAction
         actions.sort(Comparator.comparingInt(WrappedWandAction::order));
     }
     public void draw(ActionCardDeck deck) {
-        this.actions.addAll(deck.getActions());
+        this.actions.addAll(deck.actions());
     }
 
     public void draw(List<WrappedWandAction> actions) {
@@ -72,6 +69,9 @@ public record ActionCardDeck(List<WrappedWandAction> actions){
     }
     public boolean isEmpty() {
         return actions.isEmpty();
+    }
+    public int size() {
+        return actions.size();
     }
     public ActionCardDeck copy() {
         return new ActionCardDeck(new CopyOnWriteArrayList<>(actions));

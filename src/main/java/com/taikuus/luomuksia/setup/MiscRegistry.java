@@ -23,5 +23,7 @@ public class MiscRegistry {
         return REGISTRAR.register(name, () -> IMenuTypeExtension.create(factory));
     }
     public static final ResourceKey<DamageType> CUT_DAMAGE = ResourceKey.create(Registries.DAMAGE_TYPE, RegistryNames.DAMAGE_TYPE_CUT.get());
+    //TODO: Local hurt cooldown for every registered DamageType
+    //      may be registering a new entity nbt tag and mixin to the entity hurt method
 
 }

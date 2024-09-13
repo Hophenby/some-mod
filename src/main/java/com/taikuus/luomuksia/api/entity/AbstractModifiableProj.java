@@ -44,6 +44,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
      */
     public int maxExistingTicksLimit = 20 * 3600; // an hour
     public boolean hitLiquid = false;
+    public boolean hurtEntity = true;
     public boolean piercing = false;
     public float damage = 0.0f;
     public float knockback = 0.0f;
@@ -78,7 +79,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     }
 
     /**
-     * Define the data that should be synchronized between the client and server
+     * Define the wandData that should be synchronized between the client and server
      *
      */
     @Override
@@ -133,7 +134,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     protected void onHitEntity(@NotNull EntityHitResult entityResult) {
         super.onHitEntity(entityResult);
         if (!this.level().isClientSide) {
-            if (this.getDamage() > 0){
+            if (this.getDamage() > 0 && this.canHurtEntity(entityResult.getEntity())){
                 entityResult.getEntity().hurt(this.getDamageSource(), this.getDamage());
                 if (this.getOwner() != null &&
                     this.getOwner() instanceof LivingEntity livingOwner) {
@@ -143,10 +144,11 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             if (this.knockback > 0) {
                 entityResult.getEntity().push(this.getDeltaMovement().x, this.getDeltaMovement().y, this.getDeltaMovement().z);
             }
-            if (!this.piercing) {
-                attemptRemoval();
-            }
+            this.attemptRemoval();
         }
+    }
+    public boolean canHurtEntity(Entity entity) {
+        return this.hurtEntity && (entity != this.getOwner() || this.piercing);
     }
     @Override
     protected void onHitBlock(BlockHitResult pResult){
@@ -160,6 +162,14 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     }
 
     protected void attemptRemoval() {
+        //this.beforeRemoval();
+        if (!this.piercing) {
+            this.attemptRemovalNoPiercingCheck();
+        } else {
+            this.beforeRemoval();
+        }
+    }
+    protected void attemptRemovalNoPiercingCheck() {
         this.beforeRemoval();
         this.remove(RemovalReason.DISCARDED);
     }

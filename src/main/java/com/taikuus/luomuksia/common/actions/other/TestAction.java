@@ -13,8 +13,6 @@ public class TestAction extends AbstractWandAction {
     public TestAction() {
         super(
                 RegistryNames.ACTION_TEST.get(),
-                "Test Action",
-                "This is a test action",
                 EnumActionTypes.OTHER
         );
     }

@@ -3,6 +3,7 @@ package com.taikuus.luomuksia.api.wand;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -45,5 +46,9 @@ public class CodecableWandAttr {
                 "id=" + id +
                 ", value=" + value +
                 '}';
+    }
+
+    public Component getTooltip() {
+        return Component.translatable("wand.attr." + id.toLanguageKey(), value);
     }
 }

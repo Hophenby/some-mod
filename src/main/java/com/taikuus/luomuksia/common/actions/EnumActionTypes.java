@@ -4,5 +4,8 @@ public enum EnumActionTypes {
     PROJECTILE,
     MODIFIER,
     MULTICAST,
-    OTHER,
+    OTHER,;
+    public String get() {
+        return this.name().toLowerCase();
+    }
 }

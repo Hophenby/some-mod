@@ -6,6 +6,7 @@ import com.taikuus.luomuksia.common.actions.other.TestAction;
 import com.taikuus.luomuksia.common.actions.modifier.ModifierAccelerate;
 import com.taikuus.luomuksia.common.actions.multicast.ActionMulticast;
 import com.taikuus.luomuksia.common.actions.multicast.ActionScatteredMulticast;
+import com.taikuus.luomuksia.common.actions.projectile.ActionSpawnBouncingBall;
 import com.taikuus.luomuksia.common.actions.projectile.ActionSpawnSpark;
 import com.taikuus.luomuksia.common.actions.projectile.ActionSpawnStoneCutter;
 import net.minecraft.resources.ResourceLocation;
@@ -33,6 +34,7 @@ public class WandActionRegistry {
         register(ModifierAccelerate.INSTANCE);
         register(ActionSpawnSpark.INSTANCE);
         register(ActionSpawnStoneCutter.INSTANCE);
+        register(ActionSpawnBouncingBall.INSTANCE);
         register(ActionMulticast.INSTANCEx2);
         register(ActionMulticast.INSTANCEx3);
         register(ActionMulticast.INSTANCEx4);

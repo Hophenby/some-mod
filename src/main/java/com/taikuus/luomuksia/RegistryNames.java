@@ -23,6 +23,7 @@ public enum RegistryNames {
     ACTION_SCATTERED_MULTICAST("action_scattered_multicast"),
     ACTION_PROJ_SPARK("action_proj_spark"),
     ACTION_PROJ_SC("action_proj_stonecutter"),
+    ACTION_PROJ_BOUNCING("action_proj_bouncing_ball"),
 
     DAMAGE_TYPE_CUT("damage_type_cut"),
 
@@ -42,7 +43,7 @@ public enum RegistryNames {
         return id.getPath();
     }
 
-    public static ResourceLocation getRL(String id) {
-        return ResourceLocation.fromNamespaceAndPath(Luomuksia.MODID, id);
+    public static ResourceLocation getRL(String path) {
+        return ResourceLocation.fromNamespaceAndPath(Luomuksia.MODID, path);
     }
 }

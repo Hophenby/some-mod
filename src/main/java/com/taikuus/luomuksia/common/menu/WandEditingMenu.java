@@ -150,6 +150,7 @@ public class WandEditingMenu extends AbstractContainerMenu {
             ItemStack mayBeWand = pInventory.getItem(0);
             lastChangedTime = this.player.tickCount;
             if (mayBeWand.getItem() instanceof Wand) {
+                Wand.reloadWand(mayBeWand);
                 this.lastWand = mayBeWand;
                 int numSlot = Wand.readOrInitData(mayBeWand).getAttr(RegistryNames.WAND_MAX_SLOTS.get()).getValue();
                 this.wandContents.deactivateAllSlots();
@@ -179,10 +180,9 @@ public class WandEditingMenu extends AbstractContainerMenu {
                 ActionCardDeck deck = new ActionCardDeck(list);
                 WandData newData = new WandData();
                 newData.setDeck(deck);
-                newData.setHand(oldData.getHand());
                 newData.setDiscard(oldData.getDiscard());
                 newData.overwriteAllAttr(oldData.allAttr);
-                //Luomuksia.LOGGER.debug("New data: " + newData);
+                //Luomuksia.LOGGER.debug("New wandData: " + newData);
                 Wand.writeData(wand, newData);
             }
         }

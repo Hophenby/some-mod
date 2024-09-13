@@ -1,0 +1,9 @@
+{
+  "itemGroup.luomuksia": "Luomuksia",
+  "wand.attr.luomuksia.wand_tier": "Tier %s wand",
+  "wand.attr.luomuksia.wand_max_mana": "Max mana: %s",
+  "wand.attr.luomuksia.wand_mana_regen": "Mana regen: %s/t",
+  "wand.attr.luomuksia.wand_basic_reload_ticks": "Wand reload time: %s ticks",
+  "wand.attr.luomuksia.wand_basic_delay_ticks": "Cast delay: %s ticks",
+  "wand.attr.luomuksia.wand_max_action_cards": "Slots: %s"
+}

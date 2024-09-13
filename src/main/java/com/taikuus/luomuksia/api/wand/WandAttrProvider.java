@@ -18,7 +18,7 @@ public class WandAttrProvider {
             new RandomizableWandAttrGenerator(RegistryNames.WAND_MAX_MANA.get(), 50, 1500, RANDOM),
             new RandomizableWandAttrGenerator(RegistryNames.WAND_MANA_REGEN.get(), 1, 50, RANDOM),
             new RandomizableWandAttrGenerator(RegistryNames.WAND_BASIC_RELOAD_TICKS.get(), 85, -45, RANDOM),
-            new RandomizableWandAttrGenerator(RegistryNames.WAND_BASIC_DELAY_TICKS.get(), -15, 15, RANDOM),
+            new RandomizableWandAttrGenerator(RegistryNames.WAND_BASIC_DELAY_TICKS.get(),  15,-15, RANDOM),
             new RandomizableWandAttrGenerator(RegistryNames.WAND_MAX_SLOTS.get(), 3, 27, RANDOM)
     );
     /**
@@ -38,7 +38,7 @@ public class WandAttrProvider {
         private final List<CodecableWandAttr> list = new ArrayList<>();
         public TieredAttrBuilder(int tier) {
             this.tier = tier;
-            //Luomuksia.LOGGER.debug("Creating wand data from tier: " + tier);
+            //Luomuksia.LOGGER.debug("Creating wand wandData from tier: " + tier);
             findAndSet(RegistryNames.WAND_TIER.get(), tier);
             for (RandomizableWandAttrGenerator generator : RANDOMIZABLES_BASES) {
                 list.add(generator.getIntWithTier(tier, 0, 0.1));
@@ -64,7 +64,7 @@ public class WandAttrProvider {
         public TieredAttrBuilder determineSpecificTier(ResourceLocation attrId, int specificTier) {
             for (RandomizableWandAttrGenerator generator : RANDOMIZABLES_BASES) {
                 if (generator.base.getId().equals(attrId)) {
-                    findAndSet(attrId, (int) generator.getWithTier(specificTier, 0, 0.1));
+                    findAndSet(attrId, (int) generator.getWithTier(specificTier, 0, 0.15));
                     return this;
                 }
             }
@@ -142,12 +142,13 @@ public class WandAttrProvider {
         /**
          *
          * @return value will be ((tiered value) ± absoluteBias / 2 ± (max - min) * relativeBias / 2)
+         *         using gaussian distribution may cause the value to be a little out of the range
          */
         private double getWithTier(int tier, int absoluteBias, double relativeBias) {
             tier = Mth.clamp(tier, 0, 11);
             tier = reversedGrowth ? 11 - tier : tier;
             return Mth.clamp(
-                    Mth.lerp(tier / 12D, min, max) + (random.nextDouble() - 0.5D) * absoluteBias + (max - min) * relativeBias * (random.nextDouble() - 0.5D),
+                    Mth.lerp(tier / 12D, min, max) + (random.nextDouble() - 0.5D) * absoluteBias + (max - min) * relativeBias * (random.nextGaussian()),
                     min, max
             );
         }

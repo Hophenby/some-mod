@@ -7,14 +7,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ShotStates {
-    private final List<Entity> projList = new ArrayList<>();
+    private final List<Supplier<? extends Entity>> projList = new ArrayList<>();
     private final List<IModifierAction> modifierList = new ArrayList<>();
     private final int numFirstDraw;
     private final Player player;
     private final Level world;
+    private int lastAddedCount = 0;
 
     public ShotStates(int numFirstDraw, Level world, Player player) {
         this.numFirstDraw = numFirstDraw;
@@ -34,20 +37,35 @@ public class ShotStates {
         return numFirstDraw;
     }
 
-    public List<Entity> getProjList() {
+    public List<Supplier<? extends Entity>> getProjList() {
         return projList;
     }
-    public Entity lastProj() {
-        return projList.get(projList.size() - 1);
+    public List<Supplier<? extends Entity>> lastProjs() {
+        //return projList.get(projList.size() - 1);
+        return projList.subList(projList.size() - lastAddedCount, projList.size());
     }
 
     /**
      * Add a projectile to the list of projectiles.
      * The initial properties of the projectile should be set before calling this method
-     * @param proj the projectile to add
+     * @param projSup the projectile to add
      */
-    public void addProj(Entity proj) {
-        projList.add(proj);
+    public void addProj(Supplier<? extends Entity> projSup) {
+        projList.add(projSup);
+        lastAddedCount = 1;
+    }
+
+    public void addProj(Supplier<? extends Entity>... projs) {
+        Supplier<? extends Entity>[] projsCopy = Arrays.copyOf(projs, projs.length); // copied to prevent varargs corruption
+        projList.addAll(Arrays.asList(projsCopy));
+        lastAddedCount = projs.length;
+    }
+    public void addProj(Supplier<? extends Entity> projSup, int count) {
+        for (int i = 0; i < count; i++) {
+            projList.add(projSup);
+        }
+        //Luomuksia.LOGGER.debug("Added " + count + " projectiles, total: " + projList.size());
+        lastAddedCount = count;
     }
 
     /**
@@ -63,15 +81,20 @@ public class ShotStates {
      * Apply all modifiers to the projectiles and shoot them, adding them to the world
      */
     public void applyModifiersAndShoot() {
-        for (Entity proj : projList) {
+        List<Entity> tempProjList = new ArrayList<>();
+        //Luomuksia.LOGGER.debug("Applying modifiers to " + projList.size() + " projectiles");
+        for (Supplier<? extends Entity> wrappedProj : projList) {
+            Entity proj = wrappedProj.get();
             if (proj instanceof AbstractModifiableProj modProj) {
                 for (IModifierAction modifier : modifierList) {
                     modProj.applyModifier(modifier);
                 }
                 modProj.shoot();
             }
+            tempProjList.add(proj);
         }
-        for (Entity proj : projList) {
+        //Luomuksia.LOGGER.debug("Adding " + tempProjList.size() + " projectiles to the world");
+        for (Entity proj : tempProjList) {
             world.addFreshEntity(proj);
         }
     }

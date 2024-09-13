@@ -6,13 +6,12 @@ import com.taikuus.luomuksia.api.actions.WandActionItem;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
-import com.taikuus.luomuksia.common.actions.EnumActionTypes;
 import net.minecraft.world.phys.Vec3;
 
 public class ModifierAccelerate extends AbstractModifierAction implements IMotionModifier {
     public static final ModifierAccelerate INSTANCE = new ModifierAccelerate();
     public ModifierAccelerate() {
-        super(RegistryNames.ACTION_MODIFIER_ACCELERATE.get(), "Accelerate", "Accelerates the projectile", EnumActionTypes.MODIFIER);
+        super(RegistryNames.ACTION_MODIFIER_ACCELERATE.get());
     }
 
     @Override

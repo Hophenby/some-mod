@@ -20,10 +20,9 @@ import java.util.regex.Pattern;
 // https://github.com/MisionThi/NBTtooltips/blob/main/src/main/java/net/mision_thi/nbttooltips/tooltips/TooltipChanger.java
 @OnlyIn(Dist.CLIENT)
 public class ComponentTooltip {
-    private static final Minecraft client = Minecraft.getInstance();
     public static void modifyTooltip(ItemStack itemStack, @Nullable Player player, List<Component> list, TooltipFlag flags, Item.TooltipContext context) {
         // Initialise the needed variables
-        ArrayList<Component> temp = new ArrayList<Component>();
+        ArrayList<Component> temp = new ArrayList<>();
 
         itemStack.getComponents().forEach(
                 (dcPair) -> {
@@ -31,7 +30,7 @@ public class ComponentTooltip {
                     MutableComponent component = Component.empty();
                     component.append(Component.literal(dcPair.type().toString()).withStyle(resLocColor));
                     component.append(Component.literal("=").withStyle(symbolColor));
-                    component.append(parseToChatFormat(dcPair.value().toString()));
+                    component.append((dcPair.value().toString().length() <= 200 || flags.hasControlDown()) ? parseToChatFormat(dcPair.value().toString()) : Component.literal("{...Press Ctrl...}").withStyle(ChatFormatting.DARK_GRAY));
                     temp.add(component);
                 }
         );

@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.taikuus.luomuksia.RegistryNames;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
@@ -18,7 +19,6 @@ public class WandData {
             instance -> instance.group(
                     Codec.list(CodecableWandAttr.CODEC).fieldOf("allAttr").forGetter(WandData::attrList),
                     ActionCardDeck.CODEC.fieldOf("deck").forGetter(WandData::getDeck),
-                    ActionCardDeck.CODEC.fieldOf("hand").forGetter(WandData::getHand),
                     ActionCardDeck.CODEC.fieldOf("discard").forGetter(WandData::getDiscard)
             ).apply(instance, WandData::new)
     );
@@ -29,7 +29,6 @@ public class WandData {
                     CodecableWandAttr.STREAM.encode(buf, attr);
                 }
                 ActionCardDeck.STREAM.encode(buf, data.getDeck());
-                ActionCardDeck.STREAM.encode(buf, data.getHand());
                 ActionCardDeck.STREAM.encode(buf, data.getDiscard());
             },
             (buf) -> {
@@ -39,22 +38,19 @@ public class WandData {
                     allAttr.add(CodecableWandAttr.STREAM.decode(buf));
                 }
                 ActionCardDeck deck = ActionCardDeck.STREAM.decode(buf);
-                ActionCardDeck hand = ActionCardDeck.STREAM.decode(buf);
                 ActionCardDeck discard = ActionCardDeck.STREAM.decode(buf);
-                return new WandData(allAttr, deck, hand, discard);
+                return new WandData(allAttr, deck, discard);
             }
     );
     private final ActionCardDeck deck;
-    private final ActionCardDeck hand;
     private final ActionCardDeck discard;
 
-    public WandData(ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard) {
+    public WandData(ActionCardDeck deck, ActionCardDeck discard) {
         this.deck = deck;
-        this.hand = hand;
         this.discard = discard;
     }
-    public WandData(List<CodecableWandAttr> allAttr, ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard) {
-        this(deck, hand, discard);
+    public WandData(List<CodecableWandAttr> allAttr, ActionCardDeck deck, ActionCardDeck discard) {
+        this(deck, discard);
         // overwrite the default allAttr
         this.overwriteAllAttr(allAttr);
     }
@@ -69,26 +65,23 @@ public class WandData {
         }
     }
     public WandData() {
-        this(new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
+        this(new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
     }
     public static WandData fromTier(int tier) {
-        //Luomuksia.LOGGER.debug("Creating wand data from tier: " + tier);
-        return new WandData(new WandAttrProvider.TieredAttrBuilder(tier).build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
+        //Luomuksia.LOGGER.debug("Creating wand wandData from tier: " + tier);
+        return new WandData(new WandAttrProvider.TieredAttrBuilder(tier).build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
     }
     public static WandData custom(WandAttrProvider.TieredAttrBuilder builder) {
-        return new WandData(builder.build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
+        return new WandData(builder.build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
     }
     public WandData copy() {
-        return new WandData(allAttr, deck.copy(), hand.copy(), discard.copy());
+        return new WandData(allAttr, deck.copy(), discard.copy());
     }
     public List<CodecableWandAttr> attrList() {
         return allAttr;
     }
     public ActionCardDeck getDeck() {
         return deck;
-    }
-    public ActionCardDeck getHand() {
-        return hand;
     }
     public ActionCardDeck getDiscard() {
         return discard;
@@ -97,10 +90,6 @@ public class WandData {
         this.deck.clear();
         this.deck.draw(deck);
     }
-    public void setHand(ActionCardDeck hand) {
-        this.hand.clear();
-        this.hand.draw(hand);
-    }
     public void setDiscard(ActionCardDeck discard) {
         this.discard.clear();
         this.discard.draw(discard);
@@ -108,7 +97,6 @@ public class WandData {
     public ActionCardDeck getAllActions() {
         ActionCardDeck all = new ActionCardDeck(new ArrayList<>());
         all.draw(deck);
-        all.draw(hand);
         all.draw(discard);
         all.orderDeck();
         return all;
@@ -123,12 +111,12 @@ public class WandData {
     }
     @Override
     public int hashCode() {
-        return allAttr.hashCode() + deck.hashCode() + hand.hashCode() + discard.hashCode();
+        return allAttr.hashCode() + deck.hashCode() + discard.hashCode();
     }
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof WandData other) {
-            return allAttr.equals(other.allAttr) && deck.equals(other.deck) && hand.equals(other.hand) && discard.equals(other.discard);
+            return allAttr.equals(other.allAttr) && deck.equals(other.deck) && discard.equals(other.discard);
         }
         return false;
     }
@@ -137,9 +125,24 @@ public class WandData {
         return "WandData{" +
                 "allAttr=" + allAttr +
                 ", deck=" + deck +
-                ", hand=" + hand +
                 ", discard=" + discard +
                 '}';
+    }
+    public List<Component> getTooltip() {
+        List<Component> tooltip = new ArrayList<>();
+        for (CodecableWandAttr attr : allAttr) {
+            tooltip.add(attr.getTooltip());
+        }
+        return tooltip;
+    }
+    public List<Component> getTooltip(List<ResourceLocation> filter) {
+        List<Component> tooltip = new ArrayList<>();
+        for (CodecableWandAttr attr : allAttr) {
+            if (filter.contains(attr.getId())) {
+                tooltip.add(attr.getTooltip());
+            }
+        }
+        return tooltip;
     }
 
     public void tick() {

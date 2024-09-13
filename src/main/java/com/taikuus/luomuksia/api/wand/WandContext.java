@@ -20,15 +20,15 @@ public class WandContext {
     private boolean disableActionDrawing = false;
 
     public WandContext(ActionCardDeck rawDeck, int storedMana, int reloadTicks) {
-        this.deck.draw(rawDeck.getActions());
+        this.deck.draw(rawDeck.actions());
         this.storedMana = storedMana;
         this.reloadTicks = reloadTicks;
         this.delayTicks = 0;
     }
     public WandContext(ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard, int storedMana, int reloadTicks) {
-        this.deck.draw(deck.getActions());
-        this.hand.draw(hand.getActions());
-        this.discard.draw(discard.getActions());
+        this.deck.draw(deck.actions());
+        this.hand.draw(hand.actions());
+        this.discard.draw(discard.actions());
         this.storedMana = storedMana;
         this.reloadTicks = reloadTicks;
         this.delayTicks = 0;
@@ -54,7 +54,7 @@ public class WandContext {
             return;
         }
         currentState = createChildState(1, world, player, pHand);
-        LOGGER.info("deck: " + deck.getActions().size() + " hand: " + hand.getActions().size() + " discard: " + discard.getActions().size());
+        LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
         LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         moveHandToDiscard();
         if (deck.isEmpty() || startReload) {
@@ -63,7 +63,7 @@ public class WandContext {
             orderDeck();
         }
         addProjectilesToWorld(currentState);
-        LOGGER.info("deck: " + deck.getActions().size() + " hand: " + hand.getActions().size() + " discard: " + discard.getActions().size());
+        LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
         LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         wand.afterShot(this, world, player, pHand);
     }
@@ -71,18 +71,18 @@ public class WandContext {
     /**
      * Add projectiles to the world
      * Called after the shot is parsed
-     * @param state
+     * @param state the state after the shot is parsed
      */
     public static void addProjectilesToWorld(ShotStates state) {
         state.applyModifiersAndShoot();
     }
     public void moveDiscardToDeck() {
-        deck.draw(discard.getActions());
-        discard.getActions().clear();
+        deck.draw(discard.actions());
+        discard.actions().clear();
     }
     public void moveHandToDiscard() {
-        discard.draw(hand.getActions());
-        hand.getActions().clear();
+        discard.draw(hand.actions());
+        hand.actions().clear();
     }
     public void orderDeck() {
         deck.orderDeck();
@@ -169,7 +169,7 @@ public class WandContext {
 
     /**
      * Getters for the WandContext
-     * Used to get the data from the context at the end of the shot
+     * Used to get the wandData from the context at the end of the shot
      */
     public static class Getters {
         private final WandContext context;

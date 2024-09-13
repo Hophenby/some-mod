@@ -14,7 +14,7 @@ public class ActionMulticast extends AbstractWandAction {
     private final int nx;
     private final int manaCostxn;
     public ActionMulticast(int nx, int manaCost) {
-        super(RegistryNames.getRL("action_multicast_" + nx), "multicast_" + nx, "cast " + nx + " spell actions at once", EnumActionTypes.MULTICAST);
+        super(RegistryNames.getRL("action_multicast_" + nx), EnumActionTypes.MULTICAST);
         this.nx = nx;
         this.manaCostxn = manaCost;
     }

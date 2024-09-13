@@ -13,7 +13,7 @@ public class ActionScatteredMulticast extends AbstractWandAction implements IMod
 
     public static final ActionScatteredMulticast INSTANCE = new ActionScatteredMulticast();
     public ActionScatteredMulticast() {
-        super(ACTION_SCATTERED_MULTICAST.get(), "scattered multicast", "cast 2 spell actions at once and add a spread to the projectiles", EnumActionTypes.MULTICAST);
+        super(ACTION_SCATTERED_MULTICAST.get(), EnumActionTypes.MULTICAST);
     }
 
     @Override
