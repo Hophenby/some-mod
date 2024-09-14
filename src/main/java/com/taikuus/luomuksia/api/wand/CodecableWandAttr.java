@@ -49,6 +49,6 @@ public class CodecableWandAttr {
     }
 
     public Component getTooltip() {
-        return Component.translatable("wand.attr." + id.toLanguageKey(), value);
+        return Component.translatable("tooltip.wand_attr." + id.toLanguageKey(), value);
     }
 }

@@ -2,7 +2,7 @@ package com.taikuus.luomuksia.common.menu;
 
 import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.RegistryNames;
-import com.taikuus.luomuksia.api.actions.WandActionItem;
+import com.taikuus.luomuksia.common.item.WandActionItem;
 import com.taikuus.luomuksia.api.wand.ActionCardDeck;
 import com.taikuus.luomuksia.api.wand.WandData;
 import com.taikuus.luomuksia.api.wand.WrappedWandAction;

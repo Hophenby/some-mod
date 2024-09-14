@@ -3,6 +3,10 @@
     {
       "id": "luomuksia:damage_type_cut",
       "required": false
+    },
+    {
+      "id": "luomuksia:damage_type_proj",
+      "required": false
     }
   ]
 }

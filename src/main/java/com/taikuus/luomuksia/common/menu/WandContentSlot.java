@@ -1,6 +1,6 @@
 package com.taikuus.luomuksia.common.menu;
 
-import com.taikuus.luomuksia.api.actions.WandActionItem;
+import com.taikuus.luomuksia.common.item.WandActionItem;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;

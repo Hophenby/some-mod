@@ -5,6 +5,7 @@ import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.common.actions.EnumActionTypes;
+import net.minecraft.network.chat.Component;
 
 public class ActionMulticast extends AbstractWandAction {
     public static final ActionMulticast INSTANCEx2 = new ActionMulticast(2, 0);
@@ -26,5 +27,9 @@ public class ActionMulticast extends AbstractWandAction {
     @Override
     public int getManaCost() {
         return manaCostxn;
+    }
+    @Override
+    public Component getDescription() {
+        return Component.translatable("tooltip.action.luomuksia.multicast.desc", nx);
     }
 }

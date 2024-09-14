@@ -5,6 +5,7 @@ import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -81,7 +82,6 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
         if (this.hitFlag) {
             RandomSource random = RandomSource.create(this.timer);
             this.hitFlag = false;
-            this.beforeRemoval();
             if (this.hitDirectionAxis != null) {
                 this.setDeltaMovement(this.getDeltaMovement().scale(0.7f).multiply(
                         this.hitDirectionAxis == Direction.Axis.X ? new Vec3(-1, 1, 1) :
@@ -89,8 +89,10 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
                                         new Vec3(1, 1, -1)
                 ));
             }
-            damage += 0.3f;
-            Luomuksia.LOGGER.debug("BouncingBall hit, damage: " + damage + ", direction: " + hitDirectionAxis);
+            if (this.getDeltaMovement().lengthSqr() > 1e-4) {
+                damage += 0.3f;
+                this.playSound(SoundEvents.SLIME_BLOCK_HIT, 1.0F, 1.2F / (random.nextFloat() * 0.2F + 0.9F));
+            }
             return;
         }
         super.attemptRemoval();

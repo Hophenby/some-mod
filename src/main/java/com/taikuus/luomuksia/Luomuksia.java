@@ -41,6 +41,7 @@ public class Luomuksia
         WandActionRegistry.setup();
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerEvents);
+        modEventBus.addListener(CapAndAttachmentRegistry::registerCapabilities);
         // Register the Deferred Register to the mod event bus so blocks get registered
         // Register the Deferred Register to the mod event bus so items get registered
         // Register the Deferred Register to the mod event bus so tabs get registered
@@ -49,6 +50,7 @@ public class Luomuksia
         DataComponentRegistry.REGISTRAR.register(modEventBus);
         EntityRegistry.REGISTRAR.register(modEventBus);
         MiscRegistry.REGISTRAR.register(modEventBus);
+        CapAndAttachmentRegistry.ATTACHMENT_TYPES.register(modEventBus);
         CreativeTab.CREATIVE_MODE_TABS.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.

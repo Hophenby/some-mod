@@ -100,7 +100,7 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
         this.playSound(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
     }
     @Override
-    protected void onHitBlock(BlockHitResult pResult) {
+    protected void onHitBlock(@NotNull BlockHitResult pResult) {
         Level level = this.level();
         RandomSource random = RandomSource.create(pResult.getBlockPos().asLong());
         boolean collisionFlag = false;
@@ -143,6 +143,6 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
     }
     @Override
     public DamageSource getDamageSource() {
-        return new DamageSource(this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(MiscRegistry.CUT_DAMAGE), this, this.getOwner());
+        return MiscRegistry.DamageTypeRegistry.CUT_DAMAGE.getDamageSource(this.level(), this, this.getOwner());
     }
 }

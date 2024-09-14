@@ -2,7 +2,7 @@ package com.taikuus.luomuksia.setup;
 
 import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
-import com.taikuus.luomuksia.api.actions.WandActionItem;
+import com.taikuus.luomuksia.common.item.WandActionItem;
 import com.taikuus.luomuksia.common.block.WandEditingTableBlock;
 import com.taikuus.luomuksia.common.item.Wand;
 import com.hollingsworth.arsnouveau.setup.registry.BlockRegistryWrapper;

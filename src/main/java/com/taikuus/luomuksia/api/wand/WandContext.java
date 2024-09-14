@@ -1,8 +1,10 @@
 package com.taikuus.luomuksia.api.wand;
 
+import com.taikuus.luomuksia.api.event.WandFireEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
 
@@ -33,6 +35,12 @@ public class WandContext {
         this.reloadTicks = reloadTicks;
         this.delayTicks = 0;
     }
+
+    /**
+     * Create a child state and parse this shot
+     * @param numFirstDraw the number of actions to draw at the start
+     * @return the state after the shot is parsed
+     */
     public ShotStates createChildState(int numFirstDraw, Level world, Player player, InteractionHand hand) {
         ShotStates state = new ShotStates(numFirstDraw, world, player);
         parseShot(state);
@@ -41,19 +49,24 @@ public class WandContext {
     /**
      * Parse the shot
      * Returned state may be used at "triggered shot"
+     *
      * @param state the state before the shot is parsed
-     * @return the state after the shot is parsed
      */
-    public ShotStates parseShot(ShotStates state) {
+    public void parseShot(ShotStates state) {
         currentState = state;
         drawActions(state.getNumFirstDraw());
-        return state;
     }
     public void shoot(Level world, Player player, InteractionHand pHand, IWand wand) {
         if (world.isClientSide) {
             return;
         }
-        currentState = createChildState(1, world, player, pHand);
+        currentState = new ShotStates(1, world, player); //TODO: numFirstDraw may be customizable
+        WandFireEvent.Pre event = new WandFireEvent.Pre(currentState, player, world, pHand, player.getItemInHand(pHand));
+        NeoForge.EVENT_BUS.post(event);
+        if (event.isCanceled()) {
+            return;
+        }
+        parseShot(currentState);
         LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
         LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         moveHandToDiscard();
@@ -62,6 +75,7 @@ public class WandContext {
             moveDiscardToDeck();
             orderDeck();
         }
+        NeoForge.EVENT_BUS.post(new WandFireEvent.Post(currentState, player, world, pHand, player.getItemInHand(pHand)));
         addProjectilesToWorld(currentState);
         LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
         LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);

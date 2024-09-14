@@ -2,7 +2,7 @@ package com.taikuus.luomuksia.common.actions.other;
 
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
-import com.taikuus.luomuksia.api.actions.IModifierAction;
+import com.taikuus.luomuksia.api.actions.IModifier;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
@@ -52,7 +52,7 @@ public class ActionAddTrigger extends AbstractWandAction {
                 } else {
                     proj2 = projAction;
                 }
-            } else if(action.action() instanceof IModifierAction mod) {
+            } else if(action.action() instanceof IModifier mod) {
                 // if the action is a modifier, add it to the stats
                 stats.addModifier(mod);
             }
@@ -72,7 +72,7 @@ public class ActionAddTrigger extends AbstractWandAction {
                 stats.addProj(()->{
                     Entity proj = projSup.get();
                     if ((proj instanceof AbstractModifiableProj modProj)) {
-                        modProj.addTrigger(newStats);
+                        modProj.addHitTrigger(newStats);
                     }
                     return proj;
                 });

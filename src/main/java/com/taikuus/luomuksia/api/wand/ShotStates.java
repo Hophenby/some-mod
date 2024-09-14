@@ -1,6 +1,6 @@
 package com.taikuus.luomuksia.api.wand;
 
-import com.taikuus.luomuksia.api.actions.IModifierAction;
+import com.taikuus.luomuksia.api.actions.IModifier;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 public class ShotStates {
     private final List<Supplier<? extends Entity>> projList = new ArrayList<>();
-    private final List<IModifierAction> modifierList = new ArrayList<>();
+    private final List<IModifier> modifierList = new ArrayList<>();
     private final int numFirstDraw;
     private final Player player;
     private final Level world;
@@ -73,7 +73,7 @@ public class ShotStates {
      *
      * @param modifier the modifier to add
      */
-    public void addModifier(IModifierAction modifier) {
+    public void addModifier(IModifier modifier) {
         modifierList.add(modifier);
     }
 
@@ -86,7 +86,7 @@ public class ShotStates {
         for (Supplier<? extends Entity> wrappedProj : projList) {
             Entity proj = wrappedProj.get();
             if (proj instanceof AbstractModifiableProj modProj) {
-                for (IModifierAction modifier : modifierList) {
+                for (IModifier modifier : modifierList) {
                     modProj.applyModifier(modifier);
                 }
                 modProj.shoot();

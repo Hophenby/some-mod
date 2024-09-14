@@ -20,17 +20,20 @@ public enum RegistryNames {
     ACTION_TEST("action_test"),
     ACTION_ADD_TRIGGER("action_add_trigger"),
     ACTION_MODIFIER_ACCELERATE("action_modifier_accelerate"),
+    ACTION_MODIFIER_HOMING("action_modifier_homing"),
+    ACTION_MODIFIER_EXPLOSIVE_HIT("action_modifier_explosive_hit"),
+    ACTION_MODIFIER_LIGHT("action_modifier_light"),
+    ACTION_MODIFIER_REDIRECTING_HOMING("action_modifier_redirecting_homing"),
     ACTION_SCATTERED_MULTICAST("action_scattered_multicast"),
     ACTION_PROJ_SPARK("action_proj_spark"),
     ACTION_PROJ_SC("action_proj_stonecutter"),
     ACTION_PROJ_BOUNCING("action_proj_bouncing_ball"),
 
     DAMAGE_TYPE_CUT("damage_type_cut"),
-
+    DAMAGE_TYPE_PROJ("damage_type_proj"),
 
 
     ;
-
     private final ResourceLocation id;
 
     RegistryNames(String path) {

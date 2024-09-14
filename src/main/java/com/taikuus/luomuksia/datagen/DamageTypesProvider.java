@@ -7,6 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageType;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
@@ -25,7 +26,8 @@ public class DamageTypesProvider extends DatapackBuiltinEntriesProvider {
         super(output, registries, BUILDER, Set.of(MODID));
     }
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
-        ctx.register(MiscRegistry.CUT_DAMAGE, new DamageType("cut",0.1f));
+        ctx.register(MiscRegistry.DamageTypeRegistry.CUT_DAMAGE.getKey(), new DamageType("wand_damage_cutting",0.1f));
+        ctx.register(MiscRegistry.DamageTypeRegistry.PROJ_DAMAGE.getKey(), new DamageType("wand_damage_proj",0.1f));
     }
     public static class DamageTypesTagsProvider extends DamageTypeTagsProvider {
 
@@ -34,9 +36,14 @@ public class DamageTypesProvider extends DatapackBuiltinEntriesProvider {
         }
         @Override
         protected void addTags(HolderLookup.@NotNull Provider pProvider){
-            tag(DamageTypeTags.BYPASSES_COOLDOWN).addOptional(MiscRegistry.CUT_DAMAGE.location());
-            tag(DamageTypeTags.BYPASSES_ARMOR).addOptional(MiscRegistry.CUT_DAMAGE.location());
-            tag(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS).addOptional(MiscRegistry.CUT_DAMAGE.location());
+            ResourceLocation cutId = MiscRegistry.DamageTypeRegistry.CUT_DAMAGE.getId();
+            tag(DamageTypeTags.BYPASSES_COOLDOWN).addOptional(cutId);
+            tag(DamageTypeTags.BYPASSES_ARMOR).addOptional(cutId);
+            tag(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS).addOptional(cutId);
+
+            ResourceLocation projId = MiscRegistry.DamageTypeRegistry.PROJ_DAMAGE.getId();
+            tag(DamageTypeTags.BYPASSES_COOLDOWN).addOptional(projId);
+            tag(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS).addOptional(projId);
         }
     }
 }

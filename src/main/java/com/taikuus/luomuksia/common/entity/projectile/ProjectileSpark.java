@@ -17,6 +17,7 @@ public class ProjectileSpark extends AbstractModifiableProj {
         super(EntityRegistry.PROJECTILE_SPARK.get(), pOwner, pX, pY, pZ, pLevel);
         maxExistingTicks = 20 * 4;
         damage = 1.0f;
+        setDynamicLightLevel(5);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.taikuus.luomuksia.setup;
 
+import com.taikuus.luomuksia.common.entity.fx.FadeLightFxProj;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileBouncingBall;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileSpark;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileStoneCutter;
@@ -12,6 +13,18 @@ import static com.taikuus.luomuksia.Luomuksia.MODID;
 
 public class EntityRegistry {
     public static final DeferredRegister<EntityType<?>> REGISTRAR = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
+    // FX
+    public static final DeferredHolder<EntityType<?>, EntityType<FadeLightFxProj>> FADE_LIGHT = REGISTRAR.register(
+            "fade_light",
+            () -> EntityType.Builder.<FadeLightFxProj>of(FadeLightFxProj::new, MobCategory.MISC)
+                    .sized(0F, 0F)
+                    .clientTrackingRange(4)
+                    .updateInterval(1)
+                    .fireImmune()
+                    .noSave()
+                    .build("fade_light")
+    );
+    // Projectiles
     /**
      * net.minecraft.world.entity.MobCategory#MISC
      */

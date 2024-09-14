@@ -1,4 +1,4 @@
-package com.taikuus.luomuksia.mixin;
+package com.taikuus.luomuksia.mixin.client;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;

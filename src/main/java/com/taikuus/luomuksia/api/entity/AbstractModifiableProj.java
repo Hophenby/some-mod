@@ -1,12 +1,15 @@
 package com.taikuus.luomuksia.api.entity;
 
 import com.taikuus.luomuksia.api.actions.IModifier;
-import com.taikuus.luomuksia.api.actions.IModifierAction;
 import com.taikuus.luomuksia.api.actions.IMotionModifier;
 import com.taikuus.luomuksia.api.actions.IOnHitModifier;
+import com.taikuus.luomuksia.api.actions.IOnRemovalModifier;
+import com.taikuus.luomuksia.api.client.lighter.ProjLightHelper;
 import com.taikuus.luomuksia.api.wand.ShotStates;
+import com.taikuus.luomuksia.api.client.lighter.ProjLightUtils;
+import com.taikuus.luomuksia.common.entity.fx.FadeLightFxProj;
+import com.taikuus.luomuksia.setup.MiscRegistry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -30,8 +33,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.minecraft.world.damagesource.DamageTypes.MOB_PROJECTILE;
-
 public abstract class AbstractModifiableProj extends Projectile implements IModifiableProj {
     public int timer = 0;
     /**
@@ -52,12 +53,13 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public float fricCoef = 0.97f;
     public float inaccuracy = 0.0f;
     public float initVelocity = 1.0f;
+    private final ProjLightHelper lighter = new ProjLightHelper(this);
+    protected int localHurtCooldown = 8;
     public Vec3 initAngle = Vec3.ZERO;
-    public ShotStates triggeredShot;
+    public ShotStates deathTrigger;
+    public ShotStates hitTrigger;
     public static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> RED = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> GREEN = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Integer> BLUE = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> LIGHT_LEVEL = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
     public final ModifiersHelper modifiersHelper = new ModifiersHelper();
     protected AbstractModifiableProj(EntityType<? extends Projectile> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -78,48 +80,64 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         return damage;
     }
 
+    public ProjLightHelper getLighter() {
+        return lighter;
+    }
+
     /**
      * Define the wandData that should be synchronized between the client and server
      *
      */
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder pBuilder) {
-        pBuilder.define(RED, 0);
-        pBuilder.define(GREEN, 0);
-        pBuilder.define(BLUE, 0);
+        pBuilder.define(LIGHT_LEVEL, 0);
         pBuilder.define(OWNER_ID, -1);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        this.entityData.set(OWNER_ID, tag.getInt("ownerId"));
+        this.entityData.set(OWNER_ID, tag.getInt("owner_id"));
+        this.entityData.set(LIGHT_LEVEL, tag.getInt("light_level"));
+        //Luomuksia.LOGGER.debug("readAdditionalSaveData() " + this.entityData.get(LIGHT_LEVEL));
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putInt("ownerId", this.entityData.get(OWNER_ID));
+        tag.putInt("owner_id", this.entityData.get(OWNER_ID));
+        tag.putInt("light_level", this.entityData.get(LIGHT_LEVEL));
     }
     public boolean isExpired() {
         return timer > getMaxExistingTicks();
     }
 
+    private boolean addedDynLightFlag = false;
     @Override
     public void tick() {
+        // The projectile will be removed if it exists for too long.
         timer++;
         if (!this.level().isClientSide && this.isExpired()) {
             this.attemptRemoval();
             return;
         }
 
+        // The projectile might hit something. We should help it find the target.
         Vec3 thisPosition = this.position();
         Vec3 nextPosition = getNextHitPosition();
         traceAnyHit(getHitResult(), thisPosition, nextPosition);
 
+        // The projectile should move and do its tickable part.
         Vec3 motion = getDeltaMovement();
         motion = modifiersHelper.applyMotiveHooks(motion);
         setDeltaMovement(motion);
-        modifiersHelper.modifiedMove(this);
+        this.move(MoverType.SELF, this.getDeltaMovement());
+
+        // The projectile tick its client-side light level logic.
+        if (this.getDynamicLightLevel() > 0 && !addedDynLightFlag && isAddedToLevel()) {
+            //Luomuksia.LOGGER.debug("Adding light source: " + this);
+            ProjLightUtils.addLightSource(this);
+            addedDynLightFlag = true;
+        }
         super.tick();
     }
     @Override
@@ -128,6 +146,11 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         if (result == null) {
             return;
         }
+        if (!this.level().isClientSide && this.hitTrigger != null) {
+            this.hitTrigger.addModifier(proj -> proj.setPos(AbstractModifiableProj.this.position()));
+            this.hitTrigger.applyModifiersAndShoot();
+        }
+        this.modifiersHelper.applyHitHooks(result);
         super.onHit(result);
     }
     @Override
@@ -151,14 +174,14 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         return this.hurtEntity && (entity != this.getOwner() || this.piercing);
     }
     @Override
-    protected void onHitBlock(BlockHitResult pResult){
+    protected void onHitBlock(@NotNull BlockHitResult pResult){
         super.onHitBlock(pResult);
         if (!this.level().isClientSide) {
             attemptRemoval();
         }
     }
     public DamageSource getDamageSource() {
-        return new DamageSource(this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(MOB_PROJECTILE), this, this.getOwner());
+        return MiscRegistry.DamageTypeRegistry.PROJ_DAMAGE.getDamageSource(this.level(),this, this.getOwner());
     }
 
     protected void attemptRemoval() {
@@ -171,13 +194,26 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     }
     protected void attemptRemovalNoPiercingCheck() {
         this.beforeRemoval();
+        if (!(this instanceof FadeLightFxProj)){
+            if (this.getDynamicLightLevel() > 0) {
+                FadeLightFxProj fx = new FadeLightFxProj(this);
+                this.level().addFreshEntity(fx);
+            }
+        }
         this.remove(RemovalReason.DISCARDED);
     }
     protected void beforeRemoval() {
-        this.modifiersHelper.applyHitHooks(getHitResult());
-        if (!this.level().isClientSide && this.triggeredShot != null) {
-            this.triggeredShot.addModifier(proj -> proj.setPos(AbstractModifiableProj.this.position()));
-            this.triggeredShot.applyModifiersAndShoot();
+        this.modifiersHelper.applyRemovalHooks(getHitResult());
+        if (!this.level().isClientSide && this.deathTrigger != null) {
+            this.deathTrigger.addModifier(proj -> proj.setPos(AbstractModifiableProj.this.position()));
+            this.deathTrigger.applyModifiersAndShoot();
+        }
+    }
+    @Override
+    public void onClientRemoval() {
+        if (this.getDynamicLightLevel() > 0) {
+            ProjLightUtils.removeLightSource(this);
+            ProjLightUtils.checkLightSources();
         }
     }
     /**
@@ -193,7 +229,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     }
 
 
-    public void applyModifier(IModifierAction modifier) {
+    public void applyModifier(IModifier modifier) {
         modifier.applyModifier(this);
     }
     @Override
@@ -259,17 +295,32 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         return ProjectileUtil.getEntityHitResult(this.level(), this, pStartVec, pEndVec, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D), this::canHitEntity);
     }
 
-    public void addTrigger(ShotStates state) {
-        this.triggeredShot = state;
+    public void addDeathTrigger(ShotStates state) {
+        this.deathTrigger = state;
+    }
+    public void addHitTrigger(ShotStates state) {
+        this.hitTrigger = state;
+    }
+
+    public int getLocalHitCooldown() {
+        return localHurtCooldown;
+    }
+
+    public int getDynamicLightLevel() {
+        return this.lighter.getDynamicLightLevel();
+    }
+
+    public void setDynamicLightLevel(int dynamicLightLevel) {
+        this.lighter.setDynamicLightLevel(dynamicLightLevel);
     }
 
     /**
      * Helper class to apply tickable motion modifiers to the projectile
      */
     public class ModifiersHelper {
-        private final List<IModifier> motionHookList = new ArrayList<>();
+        private final List<IModifier> hookList = new ArrayList<>();
         public void addHook(IModifier hook) {
-            motionHookList.add(hook);
+            hookList.add(hook);
         }
         public Vec3 applyMotiveHooks(Vec3 motion) {
             motion = motion.add(0, -gravity, 0).scale(fricCoef);
@@ -277,33 +328,37 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
                 BlockPos groundPos = getBlockPosBelowThatAffectsMyMovement();
                 motion = motion.scale(level().getBlockState(groundPos).getFriction(level(), groundPos, AbstractModifiableProj.this));
             }
-            if (motionHookList.isEmpty()) {
+            if (hookList.isEmpty()) {
                 return motion;
             }
-            for (IModifier hook : motionHookList) {
+            for (IModifier hook : hookList) {
                 if (hook instanceof IMotionModifier mHook) {
-                    motion = mHook.applyPerTick(AbstractModifiableProj.this, motion);
+                    motion = mHook.applyMotivePerTick(AbstractModifiableProj.this, motion);
                 }
             }
             return motion;
         }
         public void applyHitHooks(HitResult result) {
-            if (motionHookList.isEmpty()) {
+            if (hookList.isEmpty()) {
                 return;
             }
-            for (IModifier hook : motionHookList) {
+            for (IModifier hook : hookList) {
                 if (hook instanceof IOnHitModifier hHook) {
                     hHook.onHit(AbstractModifiableProj.this, result);
                 }
             }
         }
-
-
-        /**
-         * Make the deltaMovement actually take effects
-         */
-        public void modifiedMove(AbstractModifiableProj proj) {
-            proj.move(MoverType.SELF, proj.getDeltaMovement());
+        public void applyRemovalHooks(HitResult result) {
+            if (hookList.isEmpty()) {
+                return;
+            }
+            for (IModifier hook : hookList) {
+                if (hook instanceof IOnRemovalModifier removeHook) {
+                    removeHook.onRemoval(AbstractModifiableProj.this, result);
+                }
+            }
         }
+
+
     }
 }

@@ -158,14 +158,14 @@ dependencies {
     }
 
 
-    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
-    implementation "vazkii.patchouli:Patchouli:${minecraft_version}-${patchouli_version}"
+    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"    // geckolib
+    implementation "vazkii.patchouli:Patchouli:${minecraft_version}-${patchouli_version}"                   // patchouli
 
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-    implementation "curse.maven:jade-324717:5444008"
-    implementation "curse.maven:placebo-283644:5597604"
-    implementation "top.theillusivec4.curios:curios-neoforge:9.0.4+${minecraft_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"                             // jei
+    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"                              // jei
+    implementation "curse.maven:jade-324717:5444008"                                                        // waila
+    implementation "curse.maven:selene-499980:${moonlight_lib_version}"                                     // moonlight lib
+    implementation "top.theillusivec4.curios:curios-neoforge:9.0.4+${minecraft_version}"                    // curios
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
@@ -175,7 +175,7 @@ dependencies {
     // Example mod dependency using a file as dependency
     // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
 
-    //implementation files("externalmods/betterwithtooltips-1-neoforge-1.20.6.jar")
+    implementation files("externalmods/dummmmmmy-1.21-2.0.3-neoforge.jar")                                  // dummy mod for testing wand damage
 
     // Example project dependency using a sister or child project:
     // implementation project(":myproject")
