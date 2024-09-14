@@ -1,9 +1,39 @@
 {
   "itemGroup.luomuksia": "Luomuksia",
-  "wand.attr.luomuksia.wand_tier": "Tier %s wand",
-  "wand.attr.luomuksia.wand_max_mana": "Max mana: %s",
-  "wand.attr.luomuksia.wand_mana_regen": "Mana regen: %s/t",
-  "wand.attr.luomuksia.wand_basic_reload_ticks": "Wand reload time: %s ticks",
-  "wand.attr.luomuksia.wand_basic_delay_ticks": "Cast delay: %s ticks",
-  "wand.attr.luomuksia.wand_max_action_cards": "Slots: %s"
+
+  "tooltip.wand_attr.luomuksia.wand_tier": "Tier %s wand",
+  "tooltip.wand_attr.luomuksia.wand_max_mana": "Max mana: %s",
+  "tooltip.wand_attr.luomuksia.wand_mana_regen": "Mana regen: %s/t",
+  "tooltip.wand_attr.luomuksia.wand_basic_reload_ticks": "Wand reload time: %s ticks",
+  "tooltip.wand_attr.luomuksia.wand_basic_delay_ticks": "Cast delay: %s ticks",
+  "tooltip.wand_attr.luomuksia.wand_max_action_cards": "Slots: %s",
+
+  "tooltip.action_attr.luomuksia.action_type": "Type: %s",
+  "tooltip.action_attr.luomuksia.mana_cost": "Mana cost: %s",
+  "tooltip.action_attr.luomuksia.cast_delay": "Cast delay: %s ticks",
+  "tooltip.action_attr.luomuksia.reload_ticks": "Reload time: %s ticks",
+  "tooltip.action_attr.luomuksia.projectile_speed": "Initial speed: %s m/s",
+  "tooltip.action_attr.luomuksia.projectile_inaccuracy": "Inaccuracy: %s %%",
+  "tooltip.action_attr.luomuksia.damage_type_mob_proj": "Projectile damage: %s",
+  "tooltip.action_attr.luomuksia.damage_type_cutting": "Cutting Damage: %s",
+  "tooltip.action_attr.luomuksia.damage_type_explosion": "Explosion Damage: %s",
+  "tooltip.action_attr.luomuksia.damage_type_fire": "Fire Damage: %s",
+  "tooltip.action_attr.luomuksia.damage_type_ice": "Ice Damage: %s",
+  "tooltip.action_attr.luomuksia.damage_type_electric": "Electricity Damage: %s",
+  "tooltip.action_attr.luomuksia.damage_type_curse": "Curse Damage: %s",
+
+  "tooltip.action_type.luomuksia.multicast": "Multicast",
+  "tooltip.action_type.luomuksia.projectile": "Projectile",
+  "tooltip.action_type.luomuksia.other": "Other",
+  "tooltip.action_type.luomuksia.modifier": "Modifier",
+
+  "tooltip.action.luomuksia.shift": "Hold shift for details...",
+  "tooltip.action.luomuksia.action_test.desc": "Only for debugging.",
+  "tooltip.action.luomuksia.action_proj_spark.desc": "A small spark that deals a small amount of damage.",
+  "tooltip.action.luomuksia.action_proj_bouncing_ball.desc": "2 bouncing balls that deals a small amount of damage. Every bounce increases the damage by 0.3 .",
+  "tooltip.action.luomuksia.action_proj_stonecutter.desc": "Fires literally a stonecutter that cuts stones, woods and enemies.",
+  "tooltip.action.luomuksia.action_modifier_accelerate.desc": "Increases the speed of the projectile by 1% per tick. Only exists for 30 ticks.",
+  "tooltip.action.luomuksia.action_add_trigger.desc": "Adds a trigger to the next projectile that will fire the next² projectile.",
+  "tooltip.action.luomuksia.multicast.desc": "Cast %s actions at once.",
+  "tooltip.action.luomuksia.action_scattered_multicast.desc": "Cast 2 actions at once, but with a slight inaccuracy."
 }

@@ -143,6 +143,6 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
     }
     @Override
     public DamageSource getDamageSource() {
-        return new DamageSource(this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(MiscRegistry.CUT_DAMAGE), this, this.getOwner());
+        return MiscRegistry.DamageTypeRegistry.CUT_DAMAGE.getDamageSource(this.level(), this, this.getOwner());
     }
 }

@@ -5,8 +5,8 @@ import com.taikuus.luomuksia.api.actions.IModifierAction;
 import com.taikuus.luomuksia.api.actions.IMotionModifier;
 import com.taikuus.luomuksia.api.actions.IOnHitModifier;
 import com.taikuus.luomuksia.api.wand.ShotStates;
+import com.taikuus.luomuksia.setup.MiscRegistry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -30,8 +30,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.minecraft.world.damagesource.DamageTypes.MOB_PROJECTILE;
-
 public abstract class AbstractModifiableProj extends Projectile implements IModifiableProj {
     public int timer = 0;
     /**
@@ -52,6 +50,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public float fricCoef = 0.97f;
     public float inaccuracy = 0.0f;
     public float initVelocity = 1.0f;
+    protected int localHurtCooldown = 3;
     public Vec3 initAngle = Vec3.ZERO;
     public ShotStates triggeredShot;
     public static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
@@ -158,7 +157,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         }
     }
     public DamageSource getDamageSource() {
-        return new DamageSource(this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(MOB_PROJECTILE), this, this.getOwner());
+        return MiscRegistry.DamageTypeRegistry.PROJ_DAMAGE.getDamageSource(this.level(),this, this.getOwner());
     }
 
     protected void attemptRemoval() {
@@ -261,6 +260,10 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
 
     public void addTrigger(ShotStates state) {
         this.triggeredShot = state;
+    }
+
+    public int getLocalHitCooldown() {
+        return localHurtCooldown;
     }
 
     /**

@@ -2,7 +2,7 @@ package com.taikuus.luomuksia.common.actions.modifier;
 
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.IMotionModifier;
-import com.taikuus.luomuksia.api.actions.WandActionItem;
+import com.taikuus.luomuksia.common.item.WandActionItem;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;

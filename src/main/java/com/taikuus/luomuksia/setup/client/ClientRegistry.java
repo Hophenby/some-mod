@@ -3,6 +3,7 @@ package com.taikuus.luomuksia.setup.client;
 import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.client.gui.WandEditingGui;
 import com.taikuus.luomuksia.client.renderer.entity.ProjRendererStoneCutter;
+import com.taikuus.luomuksia.client.tooltip.ActionTooltip;
 import com.taikuus.luomuksia.client.tooltip.WandTooltip;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import com.taikuus.luomuksia.setup.MiscRegistry;
@@ -34,6 +35,6 @@ public class ClientRegistry {
     @SubscribeEvent
     public static void registerTooltipFactory(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(WandTooltip.class, WandTooltip.ClientWandTooltip::new);
-        //TODO: add tooltips for actions
+        event.register(ActionTooltip.class, ActionTooltip.ClientActionTooltip::new);
     }
 }

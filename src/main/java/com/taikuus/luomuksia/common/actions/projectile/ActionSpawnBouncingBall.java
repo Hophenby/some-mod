@@ -7,6 +7,8 @@ import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileBouncingBall;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Map;
+
 public class ActionSpawnBouncingBall extends AbstractProjAction {
     public static final ActionSpawnBouncingBall INSTANCE = new ActionSpawnBouncingBall();
     public ActionSpawnBouncingBall() {
@@ -15,7 +17,7 @@ public class ActionSpawnBouncingBall extends AbstractProjAction {
 
     @Override
     public void action(WandContext context, ShotStates stats) {
-        context.addDelayTicks(-4);
+        context.addDelayTicks(-2);
         stats.addProj(() -> relatedProjectile(context, stats), 2);
     }
 
@@ -31,5 +33,14 @@ public class ActionSpawnBouncingBall extends AbstractProjAction {
         );
         proj.setInitMotion(player.getLookAngle(), 1.5f, 3.1f);
         return proj;
+    }
+    @Override
+    public Map<TooltipShowableStats, String> getTooltipShowables() {
+        Map<TooltipShowableStats, String> map = super.getTooltipShowables();
+        map.put(TooltipShowableStats.CAST_DELAY, "-2");
+        map.put(TooltipShowableStats.PROJECTILE_SPEED, "30");
+        map.put(TooltipShowableStats.PROJECTILE_INACCURACY, "3.1");
+        map.put(TooltipShowableStats.DAMAGE_TYPE_MOB_PROJ, "1.0");
+        return map;
     }
 }

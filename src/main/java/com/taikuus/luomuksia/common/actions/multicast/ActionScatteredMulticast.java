@@ -7,6 +7,8 @@ import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.common.actions.EnumActionTypes;
 
+import java.util.Map;
+
 import static com.taikuus.luomuksia.RegistryNames.ACTION_SCATTERED_MULTICAST;
 
 public class ActionScatteredMulticast extends AbstractWandAction implements IModifierAction {
@@ -24,6 +26,12 @@ public class ActionScatteredMulticast extends AbstractWandAction implements IMod
 
     @Override
     public void applyModifier(AbstractModifiableProj proj) {
-        proj.inaccuracy += 2f;
+        proj.inaccuracy += 15f;
+    }
+    @Override
+    public Map<TooltipShowableStats, String> getTooltipShowables() {
+        Map<TooltipShowableStats, String> map = super.getTooltipShowables();
+        map.put(TooltipShowableStats.PROJECTILE_INACCURACY, "15");
+        return map;
     }
 }

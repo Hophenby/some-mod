@@ -26,7 +26,7 @@ public enum RegistryNames {
     ACTION_PROJ_BOUNCING("action_proj_bouncing_ball"),
 
     DAMAGE_TYPE_CUT("damage_type_cut"),
-
+    DAMAGE_TYPE_PROJ("damage_type_proj"),
 
 
     ;

@@ -81,7 +81,6 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
         if (this.hitFlag) {
             RandomSource random = RandomSource.create(this.timer);
             this.hitFlag = false;
-            this.beforeRemoval();
             if (this.hitDirectionAxis != null) {
                 this.setDeltaMovement(this.getDeltaMovement().scale(0.7f).multiply(
                         this.hitDirectionAxis == Direction.Axis.X ? new Vec3(-1, 1, 1) :
@@ -89,8 +88,11 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
                                         new Vec3(1, 1, -1)
                 ));
             }
-            damage += 0.3f;
-            Luomuksia.LOGGER.debug("BouncingBall hit, damage: " + damage + ", direction: " + hitDirectionAxis);
+            if (this.getDeltaMovement().lengthSqr() > 1e-4) {
+                this.beforeRemoval();
+                damage += 0.3f;
+            }
+            //Luomuksia.LOGGER.debug("BouncingBall hit, damage: " + damage + ", direction: " + hitDirectionAxis);
             return;
         }
         super.attemptRemoval();

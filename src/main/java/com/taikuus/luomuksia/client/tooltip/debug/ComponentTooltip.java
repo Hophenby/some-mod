@@ -1,4 +1,4 @@
-package com.taikuus.luomuksia.client.tooltip;
+package com.taikuus.luomuksia.client.tooltip.debug;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

@@ -7,6 +7,8 @@ import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileSpark;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Map;
+
 public class ActionSpawnSpark extends AbstractProjAction {
     public static final ActionSpawnSpark INSTANCE = new ActionSpawnSpark();
     public ActionSpawnSpark() {
@@ -23,7 +25,7 @@ public class ActionSpawnSpark extends AbstractProjAction {
                 player.getZ(),
                 stats.getWorld()
         );
-        proj.setInitMotion(player.getLookAngle(), 1.5f, 0.1f);
+        proj.setInitMotion(player.getLookAngle(), 1.5f, 0.3f);
         return proj;
     }
 
@@ -32,5 +34,15 @@ public class ActionSpawnSpark extends AbstractProjAction {
         context.addDelayTicks(4);
         context.addReloadTicks(4);
         stats.addProj(() -> relatedProjectile(context, stats));
+    }
+    @Override
+    public Map<TooltipShowableStats, String> getTooltipShowables() {
+        Map<TooltipShowableStats, String> map = super.getTooltipShowables();
+        map.put(TooltipShowableStats.CAST_DELAY, "4");
+        map.put(TooltipShowableStats.RELOAD_TICKS, "4");
+        map.put(TooltipShowableStats.PROJECTILE_SPEED, "30");
+        map.put(TooltipShowableStats.PROJECTILE_INACCURACY, "0.3");
+        map.put(TooltipShowableStats.DAMAGE_TYPE_MOB_PROJ, "1.0");
+        return map;
     }
 }

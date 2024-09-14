@@ -1,7 +1,7 @@
 package com.taikuus.luomuksia.event;
 
 import com.taikuus.luomuksia.Luomuksia;
-import com.taikuus.luomuksia.client.tooltip.ComponentTooltip;
+import com.taikuus.luomuksia.client.tooltip.debug.ComponentTooltip;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;

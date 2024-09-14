@@ -7,6 +7,8 @@ import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileStoneCutter;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Map;
+
 public class ActionSpawnStoneCutter extends AbstractProjAction{
     public static final ActionSpawnStoneCutter INSTANCE = new ActionSpawnStoneCutter();
     public ActionSpawnStoneCutter() {
@@ -25,6 +27,15 @@ public class ActionSpawnStoneCutter extends AbstractProjAction{
         );
         stoneCutter.setInitMotion(player.getLookAngle(), 1.5f, 0.3f);
         return stoneCutter;
+    }
+
+    @Override
+    public Map<TooltipShowableStats, String> getTooltipShowables() {
+        Map<TooltipShowableStats, String> map = super.getTooltipShowables();
+        map.put(TooltipShowableStats.PROJECTILE_SPEED, "30");
+        map.put(TooltipShowableStats.PROJECTILE_INACCURACY, "0.3");
+        map.put(TooltipShowableStats.DAMAGE_TYPE_CUTTING, "1.0");
+        return map;
     }
 
 }
