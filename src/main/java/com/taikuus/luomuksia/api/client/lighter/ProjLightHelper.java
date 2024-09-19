@@ -20,13 +20,22 @@ import net.minecraft.util.Mth;
  */
 public class ProjLightHelper {
     private final AbstractModifiableProj projLitFor;
+    private double lastX;
+    private double lastY;
+    private double lastZ;
+    private int lastLightLevel;
     private LongOpenHashSet trackedLitChunkPos = new LongOpenHashSet();
 
     public ProjLightHelper(AbstractModifiableProj projLitFor) {
         this.projLitFor = projLitFor;
+        this.lastX = projLitFor.getX();
+        this.lastY = projLitFor.getEyeY();
+        this.lastZ = projLitFor.getZ();
+        this.lastLightLevel = getDynamicLightLevel();
     }
 
     public void setDynamicLightLevel(int dynamicLightLevel){
+
         this.projLitFor.getEntityData().set(AbstractModifiableProj.LIGHT_LEVEL, dynamicLightLevel);
         //Luomuksia.LOGGER.debug("setDynamicLightLevel() " + getDynamicLightLevel());
     }
@@ -38,6 +47,16 @@ public class ProjLightHelper {
     public boolean updateDynamicLight(LevelRenderer renderer) {
         if (getDynamicLightLevel() < 0)
             return false;
+        var dX = this.projLitFor.getX() - this.lastX;
+        var dY = this.projLitFor.getEyeY() - this.lastY;
+        var dZ = this.projLitFor.getZ() - this.lastZ;
+        if (dX * dX + dY * dY + dZ * dZ < 0.3 && this.lastLightLevel == getDynamicLightLevel() && getDynamicLightLevel() > 0) {
+            return false;
+        }
+        this.lastX = this.projLitFor.getX();
+        this.lastY = this.projLitFor.getEyeY();
+        this.lastZ = this.projLitFor.getZ();
+        this.lastLightLevel = getDynamicLightLevel();
 
         var newPos = new LongOpenHashSet();
 
@@ -73,6 +92,11 @@ public class ProjLightHelper {
         this.trackedLitChunkPos = newPos;
         return true;
     }
+
+    public LongOpenHashSet getCopiedTrackLitChunkPos() {
+        return new LongOpenHashSet(this.trackedLitChunkPos);
+    }
+
     public void scheduleTrackedChunksRebuild(LevelRenderer renderer) {
         if (Minecraft.getInstance().level == this.projLitFor.level())
             for (long pos : this.trackedLitChunkPos) {

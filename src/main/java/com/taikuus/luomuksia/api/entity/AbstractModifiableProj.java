@@ -111,7 +111,6 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         return timer > getMaxExistingTicks();
     }
 
-    private boolean addedDynLightFlag = false;
     @Override
     public void tick() {
         // The projectile will be removed if it exists for too long.
@@ -132,14 +131,22 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         setDeltaMovement(motion);
         this.move(MoverType.SELF, this.getDeltaMovement());
 
-        // The projectile tick its client-side light level logic.
-        if (this.getDynamicLightLevel() > 0 && !addedDynLightFlag && isAddedToLevel()) {
-            //Luomuksia.LOGGER.debug("Adding light source: " + this);
-            ProjLightUtils.addLightSource(this);
-            addedDynLightFlag = true;
-        }
         super.tick();
     }
+
+    @Override
+    public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> pKey) {
+        super.onSyncedDataUpdated(pKey);
+        if (pKey.equals(LIGHT_LEVEL) && this.level().isClientSide) {
+            int dynamicLightLevel = this.entityData.get(LIGHT_LEVEL);
+            if (dynamicLightLevel <= 0) {
+                ProjLightUtils.removeLightSource(this);
+            } else {
+                ProjLightUtils.addLightSource(this);
+            }
+        }
+    }
+
     @Override
     protected void onHit(@NotNull HitResult result){
         result = transformHitResult(result);

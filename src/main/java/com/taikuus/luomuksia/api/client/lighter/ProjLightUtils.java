@@ -1,5 +1,6 @@
 package com.taikuus.luomuksia.api.client.lighter;
 
+import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.Minecraft;
@@ -21,7 +22,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * the code only plans to work with our own AbstractModifiableProj, so it is not a complete implementation.
  */
 public class ProjLightUtils {
+    /**
+     * The set of projectiles that are affected by this modifier.
+     */
     private static final Set<AbstractModifiableProj> affectedProjs = new HashSet<>();
+    /**
+     * Removed projectiles need a last update to remove them from the light sources.
+     */
+    private static final Set<LongOpenHashSet> removedTrackedLitPos = new HashSet<>();
+    /**
+     * The limit of light sources.
+     */
+    private static final int LIMIT = 60;
     /**
      * The lock for the set of projectiles that are affected by this modifier.
      */
@@ -30,13 +42,14 @@ public class ProjLightUtils {
         if (!proj.level().isClientSide()) {
             return;
         }
+        if (affectedProjs.size() >= LIMIT) {
+            Luomuksia.LOGGER.warn("Reached the limit of light sources, not adding more.");
+            return;
+        }
         lightSourcesLock.writeLock().lock();
         affectedProjs.add(proj);
         lightSourcesLock.writeLock().unlock();
         //Luomuksia.LOGGER.debug("Added light source: " + proj + " count: " + affectedProjs.size());
-    }
-    public boolean isLightSource(AbstractModifiableProj proj) {
-        return affectedProjs.contains(proj);
     }
     /**
      * Schedules a chunk rebuild at the specified chunk position.
@@ -56,6 +69,9 @@ public class ProjLightUtils {
     public static void scheduleChunkRebuild(@NotNull LevelRenderer renderer, long chunkPos) {
         scheduleChunkRebuild(renderer, BlockPos.getX(chunkPos), BlockPos.getY(chunkPos), BlockPos.getZ(chunkPos));
     }
+    public static void scheduleChunkRebuild(@NotNull LevelRenderer renderer, int x, int y, int z) {
+        if (Minecraft.getInstance().level != null) renderer.setSectionDirty(x, y, z);
+    }
     /**
      * Updates the tracked chunk sets.
      *
@@ -71,9 +87,6 @@ public class ProjLightUtils {
             if (newPos != null)
                 newPos.add(pos);
         }
-    }
-    public static void scheduleChunkRebuild(@NotNull LevelRenderer renderer, int x, int y, int z) {
-        if (Minecraft.getInstance().level != null) renderer.setSectionDirty(x, y, z);
     }
     /**
      * Returns the lightmap with combined light levels.
@@ -103,26 +116,44 @@ public class ProjLightUtils {
     public static int getBlockLightNoPatch(int light) {
         return light >> 4 & '\uffff';
     }
+    private static long lastUpdate = 0;
+    private static long lastUpdateCount = 0;
     /**
      * Updates all light sources.
      *
      * @param renderer the renderer
      */
     public static void updateAll(LevelRenderer renderer) {
-
-
-        long lastUpdate = System.currentTimeMillis();
-        int lastUpdateCount = 0;
-
+        // Update the light sources.
         lightSourcesLock.readLock().lock();
         for (AbstractModifiableProj lightSource : affectedProjs) {
             if (lightSource.getLighter().updateDynamicLight(renderer)) {
                 lastUpdateCount++;
             }
         }
-        //Luomuksia.LOGGER.debug("Updated " + lastUpdateCount + " light sources in " + (System.currentTimeMillis() - lastUpdate) + "ms.");
+        // Remove the light sources that are removed.
+        for (LongOpenHashSet poses : removedTrackedLitPos) {
+            for (long pos : poses) {
+                scheduleChunkRebuild(renderer, pos);
+            }
+            lastUpdateCount++;
+        }
         lightSourcesLock.readLock().unlock();
 
+        // removedTrackedLitPos has done its job, clear it.
+        lightSourcesLock.writeLock().lock();
+        removedTrackedLitPos.clear();
+        lightSourcesLock.writeLock().unlock();
+
+        // debugging info
+        if(System.currentTimeMillis() - lastUpdate > 1000) {
+            //Luomuksia.LOGGER.debug("Updated " + lastUpdateCount + " light sources.");
+            lastUpdate = System.currentTimeMillis();
+            lastUpdateCount = 0;
+        }
+    }
+    private static boolean inSameChunk(BlockPos pos1, BlockPos pos2) {
+        return pos1.getX() >> 4 == pos2.getX() >> 4 && pos1.getZ() >> 4 == pos2.getZ() >> 4;
     }
     /**
      * Returns the dynamic light level at the specified position.
@@ -178,6 +209,7 @@ public class ProjLightUtils {
         while (sourceIterator.hasNext()) {
             it = sourceIterator.next();
             if (it.equals(proj)) {
+                removedTrackedLitPos.add(it.getLighter().getCopiedTrackLitChunkPos());
                 sourceIterator.remove();
             }
         }
@@ -192,6 +224,7 @@ public class ProjLightUtils {
     public static void checkLightSources() {
         lightSourcesLock.writeLock().lock();
         affectedProjs.removeIf(Entity::isRemoved);
+        //affectedProjs.removeIf(proj -> proj.getDynamicLightLevel() <= 0);
         lightSourcesLock.writeLock().unlock();
     }
 }
