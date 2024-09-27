@@ -5,7 +5,7 @@ import com.taikuus.luomuksia.api.actions.IModifier;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
-import com.taikuus.luomuksia.common.actions.EnumActionTypes;
+import com.taikuus.luomuksia.api.actions.EnumActionTypes;
 
 import java.util.Map;
 
@@ -16,6 +16,8 @@ public class ActionScatteredMulticast extends AbstractWandAction implements IMod
     public static final ActionScatteredMulticast INSTANCE = new ActionScatteredMulticast();
     public ActionScatteredMulticast() {
         super(ACTION_SCATTERED_MULTICAST.get(), EnumActionTypes.MULTICAST);
+        setNumericShowable(TooltipShowableStats.MANA_COST, 20);
+        setNumericShowable(TooltipShowableStats.PROJECTILE_INACCURACY, 15f);
     }
 
     @Override

@@ -48,7 +48,8 @@ public class Luomuksia
         ItemsAndBlocksRegistry.ITEM_REGISTRAR.register(modEventBus);
         ItemsAndBlocksRegistry.BLOCK_REGISTRAR.register(modEventBus);
         DataComponentRegistry.REGISTRAR.register(modEventBus);
-        EntityRegistry.REGISTRAR.register(modEventBus);
+        EntityRegistry.ENTITY_REGISTRAR.register(modEventBus);
+        EntityRegistry.DATA_SERIALIZER_REGISTRAR.register(modEventBus);
         MiscRegistry.REGISTRAR.register(modEventBus);
         CapAndAttachmentRegistry.ATTACHMENT_TYPES.register(modEventBus);
         CreativeTab.CREATIVE_MODE_TABS.register(modEventBus);

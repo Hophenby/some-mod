@@ -27,6 +27,9 @@ public class ShotStates {
     public ShotStates childState() {
         return new ShotStates(numFirstDraw, world, player);
     }
+    public ShotStates childState(int numFirstDraw) {
+        return new ShotStates(numFirstDraw, world, player);
+    }
     public Player getPlayer() {
         return player;
     }

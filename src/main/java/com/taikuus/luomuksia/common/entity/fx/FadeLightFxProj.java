@@ -4,11 +4,10 @@ import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 
 public class FadeLightFxProj extends AbstractModifiableProj {
-    public FadeLightFxProj(EntityType<? extends Projectile> pEntityType, Level pLevel) {
+    public FadeLightFxProj(EntityType<? extends AbstractModifiableProj> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 

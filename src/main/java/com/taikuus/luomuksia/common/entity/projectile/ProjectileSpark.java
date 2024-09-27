@@ -5,12 +5,11 @@ import com.taikuus.luomuksia.setup.EntityRegistry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 
 public class ProjectileSpark extends AbstractModifiableProj {
 
-    public ProjectileSpark(EntityType<? extends Projectile> pEntityType, Level pLevel) {
+    public ProjectileSpark(EntityType<? extends AbstractModifiableProj> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
     public ProjectileSpark(Entity pOwner, double pX, double pY, double pZ, Level pLevel) {

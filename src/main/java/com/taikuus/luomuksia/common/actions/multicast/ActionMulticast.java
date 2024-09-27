@@ -4,7 +4,7 @@ import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
-import com.taikuus.luomuksia.common.actions.EnumActionTypes;
+import com.taikuus.luomuksia.api.actions.EnumActionTypes;
 import net.minecraft.network.chat.Component;
 
 public class ActionMulticast extends AbstractWandAction {
@@ -13,20 +13,15 @@ public class ActionMulticast extends AbstractWandAction {
     public static final ActionMulticast INSTANCEx4 = new ActionMulticast(4, 10);
     public static final ActionMulticast INSTANCEx8 = new ActionMulticast(8, 30);
     private final int nx;
-    private final int manaCostxn;
     public ActionMulticast(int nx, int manaCost) {
         super(RegistryNames.getRL("action_multicast_" + nx), EnumActionTypes.MULTICAST);
         this.nx = nx;
-        this.manaCostxn = manaCost;
+        setNumericShowable(TooltipShowableStats.MANA_COST, manaCost);
     }
 
     @Override
     public void action(WandContext context, ShotStates stats) {
         context.drawActions(nx);
-    }
-    @Override
-    public int getManaCost() {
-        return manaCostxn;
     }
     @Override
     public Component getDescription() {

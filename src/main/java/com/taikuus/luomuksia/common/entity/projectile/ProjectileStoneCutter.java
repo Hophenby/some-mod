@@ -39,7 +39,7 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
     public float eyeRelatedXRot = 0.0f;
     public float eyeRelatedYRot = 0.0f;
     public boolean removeFlag = false;
-    public ProjectileStoneCutter(EntityType<? extends Projectile> pEntityType, Level pLevel) {
+    public ProjectileStoneCutter(EntityType<? extends AbstractModifiableProj> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 

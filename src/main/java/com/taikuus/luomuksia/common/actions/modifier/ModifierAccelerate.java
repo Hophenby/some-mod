@@ -9,6 +9,7 @@ public class ModifierAccelerate extends AbstractModifierAction implements IMotio
     public static final ModifierAccelerate INSTANCE = new ModifierAccelerate();
     public ModifierAccelerate() {
         super(RegistryNames.ACTION_MODIFIER_ACCELERATE.get());
+        setNumericShowable(TooltipShowableStats.MANA_COST, 20);
     }
 
     @Override

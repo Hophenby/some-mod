@@ -1,15 +1,14 @@
 package com.taikuus.luomuksia.api.entity;
 
-import com.taikuus.luomuksia.api.actions.IModifier;
-import com.taikuus.luomuksia.api.actions.IMotionModifier;
-import com.taikuus.luomuksia.api.actions.IOnHitModifier;
-import com.taikuus.luomuksia.api.actions.IOnRemovalModifier;
+import com.taikuus.luomuksia.api.actions.*;
 import com.taikuus.luomuksia.api.client.lighter.ProjLightHelper;
+import com.taikuus.luomuksia.api.entity.proj.ProjBounceHelper;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.client.lighter.ProjLightUtils;
 import com.taikuus.luomuksia.common.entity.fx.FadeLightFxProj;
 import com.taikuus.luomuksia.setup.MiscRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -19,6 +18,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
@@ -54,6 +54,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public float inaccuracy = 0.0f;
     public float initVelocity = 1.0f;
     private final ProjLightHelper lighter = new ProjLightHelper(this);
+    private final ProjBounceHelper bouncer = new ProjBounceHelper(0);
     protected int localHurtCooldown = 8;
     public Vec3 initAngle = Vec3.ZERO;
     public ShotStates deathTrigger;
@@ -61,10 +62,10 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LIGHT_LEVEL = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
     public final ModifiersHelper modifiersHelper = new ModifiersHelper();
-    protected AbstractModifiableProj(EntityType<? extends Projectile> pEntityType, Level pLevel) {
+    protected AbstractModifiableProj(EntityType<? extends AbstractModifiableProj> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
-    protected AbstractModifiableProj(EntityType<? extends Projectile> pEntityType, Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
+    protected AbstractModifiableProj(EntityType<? extends AbstractModifiableProj> pEntityType, Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         this(pEntityType, pLevel);
         setOwner(pOwner);
         setPos(pX, pY, pZ);
@@ -229,10 +230,9 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public void shoot() {
         super.shoot(initAngle.x, initAngle.y, initAngle.z, initVelocity, inaccuracy);
     }
-    public void setInitMotion(Vec3 angle, float velocity, float inaccuracy) {
+    public void setInitMotion(Vec3 angle, float velocity) {
         this.initAngle = angle;
         this.initVelocity = velocity;
-        this.inaccuracy = inaccuracy;
     }
 
 
@@ -262,18 +262,22 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
      * See {@link com.hollingsworth.arsnouveau.common.entity.EntityProjectileSpell#traceAnyHit(HitResult, Vec3, Vec3)}
      * @author baileyholl
      */
-    public void traceAnyHit(@Nullable HitResult raytraceresult, Vec3 thisPosition, Vec3 nextPosition) {
-        if (raytraceresult != null && raytraceresult.getType() != HitResult.Type.MISS) {
-            nextPosition = raytraceresult.getLocation();
+    public void traceAnyHit(@Nullable HitResult rayTraceResult, Vec3 thisPosition, Vec3 nextPosition) {
+        if (rayTraceResult != null && rayTraceResult.getType() != HitResult.Type.MISS) {
+            nextPosition = rayTraceResult.getLocation();
         }
-        EntityHitResult entityraytraceresult = this.findHitEntity(thisPosition, nextPosition);
-        if (entityraytraceresult != null) {
-            raytraceresult = entityraytraceresult;
+        EntityHitResult entityRayTraceResult = this.findHitEntity(thisPosition, nextPosition);
+        if (entityRayTraceResult != null) {
+            rayTraceResult = entityRayTraceResult;
         }
 
-        if (raytraceresult != null && raytraceresult.getType() != HitResult.Type.MISS && !net.neoforged.neoforge.event.EventHooks.onProjectileImpact(this, raytraceresult)) {
-            this.onHit(raytraceresult);
-            this.hasImpulse = true;
+        if (rayTraceResult != null && rayTraceResult.getType() != HitResult.Type.MISS && !net.neoforged.neoforge.event.EventHooks.onProjectileImpact(this, rayTraceResult)) {
+            if (this.getBouncer().canBounceOn(rayTraceResult)) {
+                this.getBouncer().tryBounce(this, rayTraceResult, 0.7f);
+            } else {
+                this.onHit(rayTraceResult);
+                this.hasImpulse = true;
+            }
         }
     }
     public HitResult getHitResult() {
@@ -321,6 +325,14 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         this.lighter.setDynamicLightLevel(dynamicLightLevel);
     }
 
+    public ProjBounceHelper getBouncer() {
+        return bouncer;
+    }
+
+    public void addInaccuracy(double inaccuracy) {
+        this.inaccuracy += inaccuracy;
+    }
+
     /**
      * Helper class to apply tickable motion modifiers to the projectile
      */
@@ -362,6 +374,16 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             for (IModifier hook : hookList) {
                 if (hook instanceof IOnRemovalModifier removeHook) {
                     removeHook.onRemoval(AbstractModifiableProj.this, result);
+                }
+            }
+        }
+        public void applyBounceHooks(HitResult result, Direction projFacing) {
+            if (hookList.isEmpty()) {
+                return;
+            }
+            for (IModifier hook : hookList) {
+                if (hook instanceof IOnBounceModifier bounceHook) {
+                    bounceHook.onBounce(AbstractModifiableProj.this, result, projFacing);
                 }
             }
         }

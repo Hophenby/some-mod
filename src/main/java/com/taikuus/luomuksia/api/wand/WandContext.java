@@ -47,8 +47,7 @@ public class WandContext {
         return state;
     }
     /**
-     * Parse the shot
-     * Returned state may be used at "triggered shot"
+     * Parse the shot.
      *
      * @param state the state before the shot is parsed
      */
@@ -56,6 +55,19 @@ public class WandContext {
         currentState = state;
         drawActions(state.getNumFirstDraw());
     }
+
+    /**
+     * Parse the triggered shot. The old state is saved and restored after the shot is parsed.
+     * @param state the state after the trigger is parsed
+     */
+    public void parseTrigger(ShotStates state) {
+        ShotStates oldState = currentState;
+        currentState = state;
+        drawActions(state.getNumFirstDraw());
+        currentState = oldState;
+    }
+
+
     public void shoot(Level world, Player player, InteractionHand pHand, IWand wand) {
         if (world.isClientSide) {
             return;
@@ -127,6 +139,11 @@ public class WandContext {
 
         return true;
     }
+
+    /**
+     * Draw actions from the deck and cast them. Checking and spending mana will be done here.
+     * @param num the number of actions to draw
+     */
     public void drawActions(int num) {
         for (int i = 0; i < num; i++) {
             if(!disableActionDrawing && !drawAndCast()) while (!deck.isEmpty()) if (drawAndCast()) break;

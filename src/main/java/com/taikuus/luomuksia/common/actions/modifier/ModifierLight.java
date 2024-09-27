@@ -6,12 +6,6 @@ import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 
 public class ModifierLight extends AbstractModifierAction {
     public static final ModifierLight INSTANCE = new ModifierLight();
-
-    @Override
-    public int getManaCost() {
-        return 1;
-    }
-
     @Override
     public void applyModifier(AbstractModifiableProj proj) {
         proj.setDynamicLightLevel(proj.getDynamicLightLevel() + 15);
@@ -19,5 +13,6 @@ public class ModifierLight extends AbstractModifierAction {
 
     public ModifierLight() {
         super(RegistryNames.ACTION_MODIFIER_LIGHT.get());
+        setNumericShowable(TooltipShowableStats.MANA_COST, 1);
     }
 }

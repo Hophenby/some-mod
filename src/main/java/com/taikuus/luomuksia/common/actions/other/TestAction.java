@@ -5,7 +5,7 @@ import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
-import com.taikuus.luomuksia.common.actions.EnumActionTypes;
+import com.taikuus.luomuksia.api.actions.EnumActionTypes;
 
 public class TestAction extends AbstractWandAction {
     public static final TestAction INSTANCE = new TestAction();
@@ -15,10 +15,7 @@ public class TestAction extends AbstractWandAction {
                 RegistryNames.ACTION_TEST.get(),
                 EnumActionTypes.OTHER
         );
-    }
-    @Override
-    public int getManaCost() {
-        return 10;
+        setNumericShowable(TooltipShowableStats.MANA_COST, 10);
     }
 
 

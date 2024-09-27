@@ -2,12 +2,12 @@ package com.taikuus.luomuksia.common.actions.other;
 
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
+import com.taikuus.luomuksia.api.actions.EnumActionTypes;
 import com.taikuus.luomuksia.api.actions.IModifier;
 import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.api.wand.WrappedWandAction;
-import com.taikuus.luomuksia.common.actions.EnumActionTypes;
 import com.taikuus.luomuksia.common.actions.projectile.AbstractProjAction;
 import net.minecraft.world.entity.Entity;
 
@@ -21,18 +21,15 @@ public class ActionAddTrigger extends AbstractWandAction {
                 RegistryNames.ACTION_ADD_TRIGGER.get(),
                 EnumActionTypes.OTHER
         );
-    }
-    @Override
-    public int getManaCost() {
-        return 20;
+        setNumericShowable(TooltipShowableStats.MANA_COST, 20);
     }
     @Override
     public void action(WandContext context, ShotStates stats) {
         /*
          * This action will draw 2 projectile actions from the deck, and add them as triggers to the wand.
          */
-        AbstractProjAction proj1 = null;
-        AbstractProjAction proj2 = null;
+        AbstractProjAction<?> proj1 = null;
+        AbstractProjAction<?> proj2 = null;
 
         // find 2 valid actions to add as triggers
         while (proj1 == null || proj2 == null) {
@@ -46,11 +43,13 @@ public class ActionAddTrigger extends AbstractWandAction {
             context.getDiscard().draw(action);
 
             // if the action is a projectile, add it to the triggers
-            if (action.action() instanceof AbstractProjAction projAction) {
+            if (action.action() instanceof AbstractProjAction<?> projAction) {
                 if (proj1 == null) {
                     proj1 = projAction;
+                    context.spendMana(proj1.getManaCost());
                 } else {
                     proj2 = projAction;
+                    context.spendMana(proj2.getManaCost());
                 }
             } else if(action.action() instanceof IModifier mod) {
                 // if the action is a modifier, add it to the stats

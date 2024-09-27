@@ -1,4 +1,4 @@
-package com.taikuus.luomuksia.common.actions;
+package com.taikuus.luomuksia.api.actions;
 
 import com.taikuus.luomuksia.Luomuksia;
 import net.minecraft.network.chat.Component;
