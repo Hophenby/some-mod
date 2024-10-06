@@ -1,6 +1,6 @@
 package com.taikuus.luomuksia.common.entity.fx;
 
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;

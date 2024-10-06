@@ -4,7 +4,7 @@ import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.actions.EnumActionTypes;
 import com.taikuus.luomuksia.api.actions.IModifier;
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.api.wand.WrappedWandAction;

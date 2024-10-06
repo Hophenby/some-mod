@@ -1,7 +1,7 @@
 package com.taikuus.luomuksia.api.wand;
 
 import com.taikuus.luomuksia.api.actions.IModifier;
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -58,7 +58,8 @@ public class ShotStates {
         lastAddedCount = 1;
     }
 
-    public void addProj(Supplier<? extends Entity>... projs) {
+    @SafeVarargs
+    public final void addProj(Supplier<? extends Entity>... projs) {
         Supplier<? extends Entity>[] projsCopy = Arrays.copyOf(projs, projs.length); // copied to prevent varargs corruption
         projList.addAll(Arrays.asList(projsCopy));
         lastAddedCount = projs.length;

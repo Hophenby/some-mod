@@ -2,6 +2,7 @@ package com.taikuus.luomuksia.setup.client;
 
 import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.client.gui.WandEditingGui;
+import com.taikuus.luomuksia.client.renderer.entity.ProjRendererLightBlade;
 import com.taikuus.luomuksia.client.renderer.entity.ProjRendererStoneCutter;
 import com.taikuus.luomuksia.client.tooltip.ActionTooltip;
 import com.taikuus.luomuksia.client.tooltip.WandTooltip;
@@ -27,6 +28,7 @@ public class ClientRegistry {
         //TODO: add custom particles
         event.registerEntityRenderer(EntityRegistry.PROJECTILE_STONE_CUTTER.get(), ProjRendererStoneCutter::new);
         event.registerEntityRenderer(EntityRegistry.FADE_LIGHT.get(), NoopRenderer::new);
+        event.registerEntityRenderer(EntityRegistry.PROJECTILE_LIGHT_BLADE.get(), ProjRendererLightBlade::new);
     }
     @SubscribeEvent
     public static void registerMenuScreens(RegisterMenuScreensEvent event){

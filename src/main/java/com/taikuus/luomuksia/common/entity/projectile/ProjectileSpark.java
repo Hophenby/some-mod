@@ -1,6 +1,6 @@
 package com.taikuus.luomuksia.common.entity.projectile;
 
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Entity;
@@ -14,8 +14,9 @@ public class ProjectileSpark extends AbstractModifiableProj {
     }
     public ProjectileSpark(Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         super(EntityRegistry.PROJECTILE_SPARK.get(), pOwner, pX, pY, pZ, pLevel);
-        maxExistingTicks = 20 * 4;
-        damage = 1.0f;
+        maxExistingTicks += 20 * 4;
+        damage += 1.0f;
+        critFactor += 0.06f;
         setDynamicLightLevel(5);
     }
 

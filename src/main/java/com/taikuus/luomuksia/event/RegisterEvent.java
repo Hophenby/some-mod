@@ -1,8 +1,8 @@
 package com.taikuus.luomuksia.event;
 
 import com.taikuus.luomuksia.Luomuksia;
-import com.taikuus.luomuksia.network.TransferFXHandler;
-import com.taikuus.luomuksia.network.TransferFXPacket;
+import com.taikuus.luomuksia.network.CritFxHandler;
+import com.taikuus.luomuksia.network.CritFxPacket;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -14,6 +14,6 @@ public class RegisterEvent {
     public static void registerPayloadHandlers(final RegisterPayloadHandlersEvent event) {
         // Register your packet handlers here
         final PayloadRegistrar registrar = event.registrar("1");
-        registrar.playToClient(TransferFXPacket.TYPE, TransferFXPacket.STREAM_CODEC, TransferFXHandler::handleData);
+        registrar.playToClient(CritFxPacket.TYPE, CritFxPacket.STREAM, CritFxHandler::handleData);
     }
 }

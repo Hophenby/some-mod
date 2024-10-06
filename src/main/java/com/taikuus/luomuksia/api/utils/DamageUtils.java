@@ -1,6 +1,6 @@
 package com.taikuus.luomuksia.api.utils;
 
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.NotNull;

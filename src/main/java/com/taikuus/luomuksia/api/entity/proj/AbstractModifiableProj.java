@@ -1,11 +1,12 @@
-package com.taikuus.luomuksia.api.entity;
+package com.taikuus.luomuksia.api.entity.proj;
 
+import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.api.actions.*;
 import com.taikuus.luomuksia.api.client.lighter.ProjLightHelper;
-import com.taikuus.luomuksia.api.entity.proj.ProjBounceHelper;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.client.lighter.ProjLightUtils;
 import com.taikuus.luomuksia.common.entity.fx.FadeLightFxProj;
+import com.taikuus.luomuksia.network.CritFxPacket;
 import com.taikuus.luomuksia.setup.MiscRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,12 +14,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
@@ -27,10 +30,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractModifiableProj extends Projectile implements IModifiableProj {
@@ -56,6 +61,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     private final ProjLightHelper lighter = new ProjLightHelper(this);
     private final ProjBounceHelper bouncer = new ProjBounceHelper(0);
     protected int localHurtCooldown = 8;
+    protected double critFactor = 0;
     public Vec3 initAngle = Vec3.ZERO;
     public ShotStates deathTrigger;
     public ShotStates hitTrigger;
@@ -77,7 +83,19 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public int getMaxExistingTicks() {
         return maxExistingTicks;
     }
+
     public float getDamage() {
+        return getProjBoundDamage();
+    }
+    private boolean nextCritChance(EntityHitResult result) {
+        var critFactor = getCalcedCritFactor(result);
+        return random.nextFloat() < critFactor;
+    }
+    private float getCritConsideredDamage(EntityHitResult result, boolean critFlag){
+        return critFlag ? getDamage() * (Math.max(0.75f, (float) getCalcedCritFactor(result)) + 1) : getDamage();
+    }
+
+    public float getProjBoundDamage() {
         return damage;
     }
 
@@ -166,7 +184,15 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         super.onHitEntity(entityResult);
         if (!this.level().isClientSide) {
             if (this.getDamage() > 0 && this.canHurtEntity(entityResult.getEntity())){
-                entityResult.getEntity().hurt(this.getDamageSource(), this.getDamage());
+                boolean critFlag = nextCritChance(entityResult);
+                //Luomuksia.LOGGER.debug("Crit chance: " + getCalcedCritFactor(entityResult) + " critFlag: " + critFlag);
+                if (critFlag) {
+                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, this.getSoundSource(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+                    PacketDistributor.sendToPlayersNear((ServerLevel) level(), null, getX(), getY(), getZ(),32, new CritFxPacket(this.getId()));
+                    //Luomuksia.LOGGER.debug("Crit!");
+                }
+                entityResult.getEntity().hurt(this.getDamageSource(), getCritConsideredDamage(entityResult, critFlag));
+                // entityResult.getEntity().hurt(this.getDamageSource(), this.getDamage());
                 if (this.getOwner() != null &&
                     this.getOwner() instanceof LivingEntity livingOwner) {
                     livingOwner.setLastHurtMob(entityResult.getEntity());
@@ -321,6 +347,14 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         return this.lighter.getDynamicLightLevel();
     }
 
+    public double getProjBoundCritFactor() {
+        return critFactor;
+    }
+
+    public double getCalcedCritFactor(EntityHitResult result){
+        return modifiersHelper.getCalcedCritFactor(result);
+    }
+
     public void setDynamicLightLevel(int dynamicLightLevel) {
         this.lighter.setDynamicLightLevel(dynamicLightLevel);
     }
@@ -387,7 +421,48 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
                 }
             }
         }
+        public double getCalcedCritFactor(EntityHitResult result){
+            LinkedList<ICritModifier> adds = new LinkedList<>();
+            LinkedList<ICritModifier> muls = new LinkedList<>();
+            LinkedList<ICritModifier> indMuls = new LinkedList<>();
+            LinkedList<ICritModifier> set = new LinkedList<>();
+            for (IModifier hook : hookList) {
+                if (hook instanceof ICritModifier critHook) {
+                    switch (critHook.getCalcType()) {
+                        case ADD -> adds.add(critHook);
+                        case MUL -> muls.add(critHook);
+                        case IND_MUL -> indMuls.add(critHook);
+                        case SET -> set.add(critHook);
+                    }
+                }
+            }
+            // calc order:
+            // temp var valueA = baseCrit
+            // for each ADD hook, valueA applies the hook
+            // if SET hooks exist, valueA is the last SET hook value, overriding all ADD hooks
+            // the current result saves into valueB
+            // then get a sum of valueB applied by each MUL hook
+            // then save the sum into valueC and subtract valueA * (num of MUL hooks - 1) from valueC for compensation
+            // then get a product of valueC applied by each IND_MUL hook
+            // then return the product
+            double valueA = AbstractModifiableProj.this.getProjBoundCritFactor();
+            if (!set.isEmpty()) {
+                valueA = set.getLast().modifyValue(valueA, result, AbstractModifiableProj.this);
+            } else {
+                for (ICritModifier hook : adds) {
+                    valueA = hook.modifyValue(valueA, result, AbstractModifiableProj.this);
+                }
+            }
+            double valueC = - (valueA * (muls.size() - 1)); // compensation
+            for (ICritModifier hook : muls) {
+                valueC += hook.modifyValue(valueA, result, AbstractModifiableProj.this); // valueB
+            }
+            for (ICritModifier hook : indMuls) {
+                valueC = hook.modifyValue(valueC, result, AbstractModifiableProj.this); // valueC
+            }
+            return valueC;
 
+        }
 
     }
 }

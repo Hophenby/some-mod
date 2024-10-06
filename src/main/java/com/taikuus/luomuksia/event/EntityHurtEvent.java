@@ -28,7 +28,9 @@ public class EntityHurtEvent {
             if (cap == null) return;
             Entity directEntity = event.getSource().getDirectEntity();
             if (directEntity == null) return;
-            if (!cap.canHurt(directEntity)) event.setCanceled(true);
+            if (!cap.canHurt(directEntity)) {
+                event.setCanceled(true);
+            }
             else cap.setHurtCooldown(directEntity, DamageUtils.getEntityHitCooldown(directEntity));
         }
 

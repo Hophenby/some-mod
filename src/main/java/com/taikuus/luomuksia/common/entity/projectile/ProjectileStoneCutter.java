@@ -1,11 +1,10 @@
 package com.taikuus.luomuksia.common.entity.projectile;
 
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import com.taikuus.luomuksia.setup.MiscRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
@@ -15,7 +14,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -47,6 +45,7 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
         super(EntityRegistry.PROJECTILE_STONE_CUTTER.get(), pOwner, pX, pY, pZ, pLevel);
         maxExistingTicks = 20 * 7;
         damage = 1.0f;
+        critFactor = 0.02f;
     }
     @Override
     public void tick(){

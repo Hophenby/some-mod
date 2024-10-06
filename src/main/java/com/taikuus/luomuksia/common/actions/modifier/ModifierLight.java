@@ -2,7 +2,7 @@ package com.taikuus.luomuksia.common.actions.modifier;
 
 
 import com.taikuus.luomuksia.RegistryNames;
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 
 public class ModifierLight extends AbstractModifierAction {
     public static final ModifierLight INSTANCE = new ModifierLight();

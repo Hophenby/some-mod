@@ -1,6 +1,6 @@
 package com.taikuus.luomuksia.mixin.client;
 
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.client.lighter.ProjLightUtils;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;

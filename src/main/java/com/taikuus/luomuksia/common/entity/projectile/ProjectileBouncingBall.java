@@ -1,8 +1,7 @@
 package com.taikuus.luomuksia.common.entity.projectile;
 
-import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.api.actions.IOnBounceModifier;
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.entity.proj.ProjBounceHelper;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import net.minecraft.core.particles.ParticleTypes;
@@ -25,6 +24,7 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
         super(EntityRegistry.PROJECTILE_BOUNCING_BALL.get(), pOwner, pX, pY, pZ, pLevel);
         maxExistingTicks = 20 * 4;
         damage += 0.3f;
+        critFactor += 0.12f;
         this.modifiersHelper.addHook(new IOnBounceModifier() {
             @Override
             public void applyModifier(AbstractModifiableProj proj) {
@@ -33,7 +33,7 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
             }
             @Override
             public void onBounce(AbstractModifiableProj proj, HitResult result, Direction projFacing) {
-                proj.damage += 0.3f;
+                proj.damage += 0.03f;
             }
         });
     }
@@ -58,18 +58,6 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
     public void move(MoverType pType, Vec3 pPos) {
         //Vec3 oldMove = this.getDeltaMovement();
         super.move(pType, pPos);
-        /*Vec3 newMove = this.getDeltaMovement();
-        if (newMove.lengthSqr()<1e-4) {
-            return;
-        }
-        boolean flagX = oldMove.x * newMove.x <= 1e-4;
-        boolean flagY = oldMove.y * newMove.y <= 1e-4;
-        boolean flagZ = oldMove.z * newMove.z <= 1e-4;
-        boolean flag = flagX || flagY || flagZ;
-        this.setDeltaMovement(flagX ? -oldMove.x : newMove.x, flagY ? -oldMove.y : newMove.y, flagZ ? -oldMove.z : newMove.z);
-        */
-        //this.setDeltaMovement(this.getDeltaMovement().scale(flag ? 0.8f : 1f));
-        //damage += 0.3f;
     }
 
 

@@ -2,7 +2,7 @@ package com.taikuus.luomuksia.common.actions.projectile;
 
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.actions.IModifier;
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.api.actions.EnumActionTypes;

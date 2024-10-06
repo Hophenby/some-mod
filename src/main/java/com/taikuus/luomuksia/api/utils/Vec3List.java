@@ -4,6 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Vec3List extends LinkedList<Vec3> {
@@ -26,5 +27,39 @@ public class Vec3List extends LinkedList<Vec3> {
             list.add(new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()));
         }
         return list;
+    }
+    public PairedIterartor getPairedIterator(){
+        return new PairedIterartor();
+    }
+
+    /**
+     * Returns an iterator that iterates over the list in pairs of every two points.
+     * The first point is the start of the current pair and the end of last pair.
+     */
+    public class PairedIterartor implements Iterator<Vec3Pair>{
+        private final Iterator<Vec3> iterator;
+        private Vec3 tail = null;
+        private PairedIterartor(){
+            iterator = Vec3List.this.iterator();
+        }
+        @Override
+        public boolean hasNext() {
+            return Vec3List.this.size() >= 2 && iterator.hasNext();
+        }
+
+        @Override
+        public Vec3Pair next() {
+            if (tail == null){
+                Vec3 head = iterator.next();
+                tail = iterator.next();
+                return new Vec3Pair(head, tail);
+            }
+            Vec3 head = tail;
+            tail = iterator.next();
+            return new Vec3Pair(head, tail);
+        }
+    }
+
+    public record Vec3Pair(Vec3 head, Vec3 tail) {
     }
 }

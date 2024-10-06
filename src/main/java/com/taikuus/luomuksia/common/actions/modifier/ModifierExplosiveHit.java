@@ -2,7 +2,7 @@ package com.taikuus.luomuksia.common.actions.modifier;
 
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.IOnHitModifier;
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 

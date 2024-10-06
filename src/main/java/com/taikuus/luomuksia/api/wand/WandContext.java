@@ -8,8 +8,6 @@ import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
 
-import static com.taikuus.luomuksia.Luomuksia.LOGGER;
-
 public class WandContext {
     private final ActionCardDeck deck = new ActionCardDeck(new ArrayList<>());
     private final ActionCardDeck hand = new ActionCardDeck(new ArrayList<>());
@@ -79,8 +77,8 @@ public class WandContext {
             return;
         }
         parseShot(currentState);
-        LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
-        LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
+        //LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
+        //LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         moveHandToDiscard();
         if (deck.isEmpty() || startReload) {
             startReload = true;
@@ -89,8 +87,8 @@ public class WandContext {
         }
         NeoForge.EVENT_BUS.post(new WandFireEvent.Post(currentState, player, world, pHand, player.getItemInHand(pHand)));
         addProjectilesToWorld(currentState);
-        LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
-        LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
+        //LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
+        //LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         wand.afterShot(this, world, player, pHand);
     }
 
@@ -130,8 +128,8 @@ public class WandContext {
                 return false;
             }
             spendMana(wrappedAction.action().getManaCost());
-            LOGGER.debug("Casting action: " + wrappedAction.action().getId() + " with mana cost: " + wrappedAction.action().getManaCost());
-            LOGGER.debug("Remaining mana: " + storedMana);
+            //LOGGER.debug("Casting action: " + wrappedAction.action().getId() + " with mana cost: " + wrappedAction.action().getManaCost());
+            //LOGGER.debug("Remaining mana: " + storedMana);
         }
         if (wrappedAction != null) {
             castAction(wrappedAction);

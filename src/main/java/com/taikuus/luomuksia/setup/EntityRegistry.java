@@ -4,6 +4,7 @@ import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.api.utils.Vec3List;
 import com.taikuus.luomuksia.common.entity.fx.FadeLightFxProj;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileBouncingBall;
+import com.taikuus.luomuksia.common.entity.projectile.ProjectileLightBlade;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileSpark;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileStoneCutter;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -58,6 +59,15 @@ public class EntityRegistry {
                     .updateInterval(2)
                     .noSave()
                     .build("projectile_stone_cutter")
+    );
+    public static final DeferredHolder<EntityType<?>, EntityType<ProjectileLightBlade>> PROJECTILE_LIGHT_BLADE = ENTITY_REGISTRAR.register(
+            "projectile_light_blade",
+            () -> EntityType.Builder.<ProjectileLightBlade>of(ProjectileLightBlade::new, MobCategory.MISC)
+                    .sized(0.1F, 0.1F)
+                    .clientTrackingRange(4)
+                    .updateInterval(2)
+                    .noSave()
+                    .build("projectile_light_blade")
     );
     public static final DeferredRegister<EntityDataSerializer<?>> DATA_SERIALIZER_REGISTRAR = DeferredRegister.create(NeoForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, Luomuksia.MODID);
 

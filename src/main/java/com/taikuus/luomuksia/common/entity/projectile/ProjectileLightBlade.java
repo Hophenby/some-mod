@@ -1,6 +1,6 @@
 package com.taikuus.luomuksia.common.entity.projectile;
 
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.utils.ProjUtils;
 import com.taikuus.luomuksia.api.utils.Vec3List;
 import com.taikuus.luomuksia.setup.EntityRegistry;
@@ -16,8 +16,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
+import static com.taikuus.luomuksia.setup.EntityRegistry.PROJECTILE_LIGHT_BLADE;
 
 /**
  * A projectile that is a laser blade.
@@ -27,12 +28,12 @@ import java.util.List;
 public class ProjectileLightBlade extends AbstractModifiableProj {
 
     public static final EntityDataAccessor<Vec3List> BLADE_POINTS = SynchedEntityData.defineId(ProjectileLightBlade.class, EntityRegistry.LINKED_VEC3_LIST.get());
-    protected ProjectileLightBlade(EntityType<? extends AbstractModifiableProj> pEntityType, Level pLevel) {
+    public ProjectileLightBlade(EntityType<? extends AbstractModifiableProj> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 
     protected ProjectileLightBlade(EntityType<? extends AbstractModifiableProj> pEntityType, Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
-        super(pEntityType, pOwner, pX, pY, pZ, pLevel);
+        super(PROJECTILE_LIGHT_BLADE.get(), pOwner, pX, pY, pZ, pLevel);
         this.maxExistingTicks = 3;
     }
     private Vec3 bladeStart;
@@ -83,37 +84,26 @@ public class ProjectileLightBlade extends AbstractModifiableProj {
      * @return The hit result of the projectile.
      */
     @Override
+    @Nullable
     public HitResult getHitResult() {
         var blade = this.getBladePoints();
-        if (blade.size() < 2) {
-            return super.getHitResult();
-        }
-        Iterator<Vec3> iterator = blade.iterator();
-        Vec3 head = iterator.next();
-        Vec3 tail;
+        Vec3List.PairedIterartor iterator = blade.getPairedIterator();
         while (iterator.hasNext()) {
-            tail = iterator.next();
-            HitResult hitResult = this.level().clip(new ClipContext(head, tail, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+            Vec3List.Vec3Pair pair = iterator.next();
+            HitResult hitResult = this.level().clip(new ClipContext(pair.head(), pair.tail(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
             if (hitResult.getType() != HitResult.Type.MISS) {
                 return hitResult;
             }
-            head = tail;
         }
         return null;
     }
     private List<Entity> getEntitiesOnBlade() {
         var blade = this.getBladePoints();
-        if (blade.size() < 2) {
-            return new ArrayList<>();
-        }
-        Iterator<Vec3> iterator = blade.iterator();
-        Vec3 head = iterator.next();
-        Vec3 tail;
+        Vec3List.PairedIterartor iterator = blade.getPairedIterator();
         List<Entity> entities = new ArrayList<>();
         while (iterator.hasNext()) {
-            tail = iterator.next();
-            entities.addAll(ProjUtils.getEntitiesOnLine(this.level(), head, tail, 0.0, this.piercing));
-            head = tail;
+            Vec3List.Vec3Pair pair = iterator.next();
+            entities.addAll(ProjUtils.getEntitiesOnLine(this.level(), pair.head(), pair.tail(), 0.0, this.piercing));
         }
         return entities;
     }

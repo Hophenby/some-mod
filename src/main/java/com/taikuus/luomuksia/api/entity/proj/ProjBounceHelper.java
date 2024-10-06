@@ -1,6 +1,5 @@
 package com.taikuus.luomuksia.api.entity.proj;
 
-import com.taikuus.luomuksia.api.entity.AbstractModifiableProj;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.BlockHitResult;
@@ -53,11 +52,17 @@ public class ProjBounceHelper {
      */
     public boolean canBounceOn(HitResult hit){
         if (hit.getType() == HitResult.Type.ENTITY){
-            return leftBouncesOnEntity != 0 || infiniteBouncesOnEntity;
+            return canBounceOnEntity();
         } else if (hit.getType() == HitResult.Type.BLOCK){
-            return leftBouncesOnBlock != 0 || infiniteBouncesOnBlock;
+            return canBounceOnBlock();
         }
         return false;
+    }
+    public boolean canBounceOnEntity(){
+        return leftBouncesOnEntity != 0 || infiniteBouncesOnEntity;
+    }
+    public boolean canBounceOnBlock(){
+        return leftBouncesOnBlock != 0 || infiniteBouncesOnBlock;
     }
     /**
      * Consumes a bounce.
@@ -84,7 +89,14 @@ public class ProjBounceHelper {
         return flag;
     }
 
+    /**
+     * actually do the logic of bouncing on an entity
+     * @param result the hit result
+     * @param proj the projectile
+     * @param restitutionCoef the restitution coefficient
+     */
     public void tryBounceOnEntity(@NotNull EntityHitResult result, AbstractModifiableProj proj, float restitutionCoef){
+        //TODO add hurt and knockback
         if (proj.getDeltaMovement().lengthSqr() < 1e-4) return;
         if (consumesBounces(result)){
             Entity target = result.getEntity();
@@ -103,6 +115,12 @@ public class ProjBounceHelper {
 
         }
     }
+    /**
+     * actually do the logic of bouncing on a block
+     * @param result the hit result
+     * @param proj the projectile
+     * @param restitutionCoef the restitution coefficient
+     */
     public void tryBounceOnBlock(@NotNull BlockHitResult result, AbstractModifiableProj proj, float restitutionCoef){
         if (proj.getDeltaMovement().lengthSqr() < 1e-4) return;
         if (consumesBounces(result)){
@@ -115,6 +133,11 @@ public class ProjBounceHelper {
             proj.modifiersHelper.applyBounceHooks(result, hitDirection);
         }
     }
+
+    /**
+     * actually do the logic of bouncing on a hit result
+     * <p>will automatically convert the bounce to the entity or block type</p>
+     */
     public void tryBounce(AbstractModifiableProj proj, HitResult result, float restitutionCoef){
         if (result.getType() == HitResult.Type.ENTITY){
             tryBounceOnEntity((EntityHitResult) result, proj, restitutionCoef);
