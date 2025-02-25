@@ -6,11 +6,12 @@ import com.taikuus.luomuksia.api.wand.ActionCardDeck;
 import com.taikuus.luomuksia.api.wand.WandData;
 import com.taikuus.luomuksia.api.wand.WrappedWandAction;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class DataComponentRegistry {
-    public static final DeferredRegister.DataComponents REGISTRAR = DeferredRegister.createDataComponents(Luomuksia.MODID);
+    public static final DeferredRegister.DataComponents REGISTRAR = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Luomuksia.MODID);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<WrappedWandAction>> WRAPPED_GUN_ACTION = REGISTRAR.registerComponentType(
             "action",
             builder -> builder.persistent(WrappedWandAction.CODEC).networkSynchronized(WrappedWandAction.STREAM)

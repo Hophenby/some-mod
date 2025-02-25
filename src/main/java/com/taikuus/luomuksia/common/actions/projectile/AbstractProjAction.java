@@ -14,7 +14,10 @@ public abstract class AbstractProjAction<P extends AbstractModifiableProj> exten
     }
     public abstract P relatedProjectile(WandContext context, ShotStates stats);
     public void action(WandContext context, ShotStates stats) {
+        super.action(context, stats);
         addDelayAndReload(context);
+    }
+    protected void addProjConfigured(WandContext context, ShotStates stats) {
         stats.addProj(() -> {
             var proj = relatedProjectile(context, stats);
             proj.setInitMotion(stats.getPlayer().getLookAngle(),

@@ -49,6 +49,10 @@ public record ActionCardDeck(List<WrappedWandAction> actions){
     public WrappedWandAction remove(int index) {
         return actions.remove(index);
     }
+    public WrappedWandAction remove(WrappedWandAction action) {
+        actions.remove(action);
+        return action;
+    }
     public void clear() {
         actions.clear();
     }

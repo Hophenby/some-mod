@@ -1,5 +1,7 @@
 package com.taikuus.luomuksia.api.wand;
 
+import com.taikuus.luomuksia.Luomuksia;
+import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.event.WandFireEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -7,17 +9,21 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class WandContext {
     private final ActionCardDeck deck = new ActionCardDeck(new ArrayList<>());
     private final ActionCardDeck hand = new ActionCardDeck(new ArrayList<>());
     private final ActionCardDeck discard = new ActionCardDeck(new ArrayList<>());
+    private final List<AbstractWandAction> loggableCastActions = new ArrayList<>();
     private int storedMana;
     private int reloadTicks;
     private boolean startReload = false;
     private int delayTicks;
     private ShotStates currentState;
     private boolean disableActionDrawing = false;
+    private boolean castLoggable = true; //TODO: Configurable
+
 
     public WandContext(ActionCardDeck rawDeck, int storedMana, int reloadTicks) {
         this.deck.draw(rawDeck.actions());
@@ -77,8 +83,8 @@ public class WandContext {
             return;
         }
         parseShot(currentState);
-        //LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
-        //LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
+        Luomuksia.LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
+        Luomuksia.LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         moveHandToDiscard();
         if (deck.isEmpty() || startReload) {
             startReload = true;
@@ -128,8 +134,8 @@ public class WandContext {
                 return false;
             }
             spendMana(wrappedAction.action().getManaCost());
-            //LOGGER.debug("Casting action: " + wrappedAction.action().getId() + " with mana cost: " + wrappedAction.action().getManaCost());
-            //LOGGER.debug("Remaining mana: " + storedMana);
+            Luomuksia.LOGGER.debug("Casting action: " + wrappedAction.action().getId() + " with mana cost: " + wrappedAction.action().getManaCost());
+            Luomuksia.LOGGER.debug("Remaining mana: " + storedMana);
         }
         if (wrappedAction != null) {
             castAction(wrappedAction);
@@ -159,6 +165,9 @@ public class WandContext {
         hand.draw(action);
         // cast action
         action.action().action(this, currentState);
+    }
+    public void logCast(AbstractWandAction action) {
+        loggableCastActions.add(action);
     }
 
     public Boolean checkMana(int cost) {
@@ -196,6 +205,14 @@ public class WandContext {
         return new Getters(this);
     }
 
+    public List<AbstractWandAction> getLoggableCastActions() {
+        return loggableCastActions;
+    }
+
+    public boolean isCastLoggable() {
+        return castLoggable;
+    }
+
     /**
      * Getters for the WandContext
      * Used to get the wandData from the context at the end of the shot
@@ -213,6 +230,9 @@ public class WandContext {
         }
         public ActionCardDeck getDiscard() {
             return context.discard;
+        }
+        public List<AbstractWandAction> getLoggableCastActions() {
+            return context.loggableCastActions;
         }
         public int getStoredMana() {
             return Math.clamp(context.storedMana, 0, Integer.MAX_VALUE);

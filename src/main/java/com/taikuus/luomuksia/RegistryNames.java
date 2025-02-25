@@ -13,6 +13,8 @@ public enum RegistryNames {
     WAND_REMAINING_RELOAD_TICKS("wand_remaining_reload_ticks"),
     WAND_ACCUMULATED_RELOAD_TICKS("wand_accumulated_reload_ticks"),
     WAND_REMAINING_DELAY_TICKS("wand_remaining_delay_ticks"),
+    WAND_LAST_RELOAD_TICKS("wand_last_reload_ticks"),
+    WAND_LAST_DELAY_TICKS("wand_last_delay_ticks"),
     WAND_ACTION_CARD_DECK("wand_action_card_deck"),
     WAND_ACTION_CARD_HAND("wand_action_card_hand"),
     WAND_ACTION_CARD_DISCARD("wand_action_card_discard"),

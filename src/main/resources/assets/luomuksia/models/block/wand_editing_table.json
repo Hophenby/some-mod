@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/obsidian",
+    "east": "luomuksia:block/wand_editing_table_side",
+    "north": "luomuksia:block/wand_editing_table_side",
+    "particle": "luomuksia:block/wand_editing_table_side",
+    "south": "luomuksia:block/wand_editing_table_side",
+    "up": "luomuksia:block/wand_editing_table_top",
+    "west": "luomuksia:block/wand_editing_table_side"
+  }
+}

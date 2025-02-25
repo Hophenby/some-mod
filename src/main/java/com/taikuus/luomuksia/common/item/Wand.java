@@ -1,10 +1,13 @@
 package com.taikuus.luomuksia.common.item;
 
+import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.wand.*;
 import com.taikuus.luomuksia.client.tooltip.WandTooltip;
+import com.taikuus.luomuksia.network.LastCalcedActionsHandler;
 import com.taikuus.luomuksia.setup.DataComponentRegistry;
 import com.taikuus.luomuksia.setup.ItemsAndBlocksRegistry;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -14,6 +17,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -62,9 +66,12 @@ public class Wand extends Item implements IWand {
 
     @Override
     public void createShot(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+        if (worldIn.isClientSide) {
+            return;
+        }
         // read the wandData from the wand
         WandData data = readOrInitData(playerIn.getItemInHand(handIn));
-        //LOGGER.debug("Wand wandData: " + wandData);
+        Luomuksia.LOGGER.debug("Wand wandData: " + data);
         // check if the wand is ready to shoot
         if (data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() > 0 ||
                 data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() > 0) {
@@ -83,6 +90,7 @@ public class Wand extends Item implements IWand {
     /**
      * Called after the shot is done
      * This is where the wandData should be written back to the wand
+     * This method only gets called on the server side as it should be checked before the shot
      */
     @Override
     public void afterShot(WandContext context, @NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
@@ -98,21 +106,26 @@ public class Wand extends Item implements IWand {
         data.getAttr(RegistryNames.WAND_MANA.get()).setValue(Math.clamp(getters.getStoredMana(), 0, data.getAttr(RegistryNames.WAND_MAX_MANA.get()).getValue()));
         data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).setValue(getters.getReloadTicks());
         data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).setValue(getters.getDelayTicks());
+        data.getAttr(RegistryNames.WAND_LAST_DELAY_TICKS.get()).setValue(getters.getDelayTicks());
 
         // if the wand finished a turn with reload mark set true, accumulated reload ticks start the reload
         if (getters.getStartReload()) {
             data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getValue());
+            data.getAttr(RegistryNames.WAND_LAST_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getValue());
             data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_BASIC_RELOAD_TICKS.get()).getValue());
         }
         // apply the cooldown
         playerIn.getCooldowns().addCooldown(this, getters.getStartReload() ? Math.max(getters.getDelayTicks(), getters.getReloadTicks()) : getters.getDelayTicks());
 
         writeData(playerIn.getItemInHand(handIn), data);
-        //LOGGER.debug("Wand wandData after shot: " + readData(playerIn.getItemInHand(handIn)).toString());
+        Luomuksia.LOGGER.debug("Wand wandData after shot: " + readData(playerIn.getItemInHand(handIn)).toString());
+
+        if (context.isCastLoggable()){
+            //send logged actions to the wand owner
+            PacketDistributor.sendToPlayer((ServerPlayer) playerIn, new LastCalcedActionsHandler.LastCalcedActions(context.getLoggableCastActions()));
+        }
     }
-    //TODO apply cooldowns (optional)
-    //     this method copies the wandData from the wand, so the reload and delay ticks are the same as they were since the last shot
-    //     temporally this reset the wand like the "WAND_RESET" action (come in soon) and would cause reload_ticks accumulating (snowballing)
+    //TODO apply cooldowns (not a vanilla one)
     public static void reloadWand(ItemStack wand) {
         if (wand.isEmpty() || !(wand.getItem() instanceof IWand)) {
             return;

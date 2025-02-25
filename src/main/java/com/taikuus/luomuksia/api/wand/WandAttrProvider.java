@@ -8,6 +8,7 @@ import net.minecraft.util.RandomSource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class WandAttrProvider {
     private static final RandomSource RANDOM = RandomSource.create();
@@ -24,12 +25,14 @@ public class WandAttrProvider {
     /**
      * Changeable attributes. Usually changes over time by the game logics
      */
-    private static final List<CodecableWandAttr> DEFAULT_CHANGEABLES = List.of(
+    private static final Map<ResourceLocation, Integer> DEFAULT_CHANGEABLES = Map.of(
+            RegistryNames.WAND_MANA.get(), 50,
+            RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get(), 0,
+            RegistryNames.WAND_REMAINING_RELOAD_TICKS.get(), 0,
+            RegistryNames.WAND_REMAINING_DELAY_TICKS.get(), 0,
+            RegistryNames.WAND_LAST_DELAY_TICKS.get(), 0,
+            RegistryNames.WAND_LAST_RELOAD_TICKS.get(), 0
 
-        new CodecableWandAttr(RegistryNames.WAND_MANA.get(), 50),
-        new CodecableWandAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get(), 0),
-        new CodecableWandAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get(), 0),
-        new CodecableWandAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get(), 0)
     );
 
 
@@ -43,7 +46,9 @@ public class WandAttrProvider {
             for (RandomizableWandAttrGenerator generator : RANDOMIZABLES_BASES) {
                 list.add(generator.getIntWithTier(tier, 0, 0.1));
             }
-            list.addAll(DEFAULT_CHANGEABLES);
+            list.addAll(DEFAULT_CHANGEABLES.entrySet().stream()
+                    .map(entry -> new CodecableWandAttr(entry.getKey(), entry.getValue()))
+                    .toList());
         }
         private void findAndSet(ResourceLocation attrId, int value) {
             for (CodecableWandAttr attr : list) {

@@ -14,6 +14,7 @@
   "tooltip.action_attr.luomuksia.reload_ticks": "Reload time: %s ticks",
   "tooltip.action_attr.luomuksia.projectile_speed": "Initial speed: %s m/s",
   "tooltip.action_attr.luomuksia.projectile_inaccuracy": "Inaccuracy: %s %%",
+  "tooltip.action_attr.luomuksia.explosion_level": "Explosion Level: %s",
   "tooltip.action_attr.luomuksia.damage_type_mob_proj": "Projectile damage: %s",
   "tooltip.action_attr.luomuksia.damage_type_cutting": "Cutting Damage: %s",
   "tooltip.action_attr.luomuksia.damage_type_explosion": "Explosion Damage: %s",
@@ -40,8 +41,36 @@
   "tooltip.action.luomuksia.action_modifier_explosive_hit.desc": "Projectile explodes on impact, dealing damage in a small area. Doesn't destroy terrain.",
   "tooltip.action.luomuksia.action_modifier_light.desc": "Projectile emits light.",
 
-  "tooltip.action.luomuksia.action_add_trigger.desc": "Adds a trigger to the next projectile that will fire the next² projectile.",
+  "tooltip.action.luomuksia.action_add_trigger.desc": "Adds a trigger to the next action that will fire the subsequent action.",
 
   "tooltip.action.luomuksia.multicast.desc": "Cast %s actions at once.",
-  "tooltip.action.luomuksia.action_scattered_multicast.desc": "Cast 2 actions at once, but with a slight inaccuracy."
+  "tooltip.action.luomuksia.action_scattered_multicast.desc": "Cast 2 actions at once, but with a slight inaccuracy.",
+
+  "block.luomuksia.wand_editing_table": "Wand Editing Table",
+
+  "item.luomuksia.wand": "Wand",
+  "item.luomuksia.action_test": "Debug Action",
+  "item.luomuksia.action_proj_spark": "Spark",
+  "item.luomuksia.action_proj_bouncing_ball": "Bouncing Ball",
+  "item.luomuksia.action_proj_stonecutter": "Stonecutter",
+  "item.luomuksia.action_modifier_accelerate": "Accelerate",
+  "item.luomuksia.action_modifier_homing": "Homing",
+  "item.luomuksia.action_modifier_redirecting_homing": "Redirecting Homing",
+  "item.luomuksia.action_modifier_explosive_hit": "Explosive Hit",
+  "item.luomuksia.action_modifier_light": "Light",
+  "item.luomuksia.action_add_trigger": "Add Trigger",
+  "item.luomuksia.action_scattered_multicast": "Scattered Double-Cast",
+  "item.luomuksia.action_multicast_2": "Double-Cast",
+  "item.luomuksia.action_multicast_3": "Triple-Cast",
+  "item.luomuksia.action_multicast_4": "Quadruple-Cast",
+  "item.luomuksia.action_multicast_8": "Octuple-Cast",
+
+  "entity.luomuksia.projectile_bouncing_ball": "Flying Bouncing Ball",
+  "entity.luomuksia.projectile_stone_cutter": "Flying Stonecutter",
+  "entity.luomuksia.projectile_spark": "Flying Spark",
+
+  "gui.luomuksia.wand.deck": "Deck",
+  "gui.luomuksia.wand.discard": "Discard",
+  "gui.luomuksia.wand.last_cast": "Last Cast"
+
 }

@@ -3,7 +3,6 @@ package com.taikuus.luomuksia.common.actions.other;
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.actions.EnumActionTypes;
-import com.taikuus.luomuksia.api.actions.IModifier;
 import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
@@ -28,15 +27,13 @@ public class ActionAddTrigger extends AbstractWandAction {
         /*
          * This action will draw 2 projectile actions from the deck, and add them as triggers to the wand.
          */
-        AbstractProjAction<?> proj1 = null;
-        AbstractProjAction<?> proj2 = null;
+        super.action(context, stats);
 
-        // find 2 valid actions to add as triggers
-        while (proj1 == null || proj2 == null) {
-            // if the deck is empty, stop iterating
-            if (context.getDeck().isEmpty()) {
-                break;
-            }
+        AbstractProjAction<?> proj1 = null;
+
+        // find a valid action to add as load
+        // if the deck is empty, stop iterating
+        while (proj1 == null && !context.getDeck().isEmpty()) {
 
             // draw the action from the deck
             WrappedWandAction action = context.getDeck().remove(0);
@@ -44,29 +41,23 @@ public class ActionAddTrigger extends AbstractWandAction {
 
             // if the action is a projectile, add it to the triggers
             if (action.action() instanceof AbstractProjAction<?> projAction) {
-                if (proj1 == null) {
-                    proj1 = projAction;
-                    context.spendMana(proj1.getManaCost());
-                } else {
-                    proj2 = projAction;
-                    context.spendMana(proj2.getManaCost());
-                }
-            } else if(action.action() instanceof IModifier mod) {
-                // if the action is a modifier, add it to the stats
-                stats.addModifier(mod);
+                proj1 = projAction;
+                context.spendMana(proj1.getManaCost());
             }
         }
-        // the case where both projectile actions are found
-        if (proj2 != null) {
-            // create a new state that will fire the second action
-            // create a temporary state that will fire the first action
-            ShotStates newStats = stats.childState();
+        // the case where the load action is found
+        if (proj1 != null && !context.getDeck().isEmpty()) {
+            // create a new state that will fire the following actions
+            // create a temporary state that will fire the load
+            ShotStates newStats = stats.childState(1);
             ShotStates tempStats = stats.childState();
-            proj2.action(context, newStats);
+
             proj1.action(context, tempStats);
+            context.parseTrigger(newStats);
+
             List<Supplier<? extends Entity>> projList = tempStats.lastProjs();
 
-            // add the first action as a trigger to the second action
+            // add the parsed actions as triggers to the load action
             for (Supplier<? extends Entity> projSup : projList) {
                 stats.addProj(()->{
                     Entity proj = projSup.get();
@@ -76,15 +67,6 @@ public class ActionAddTrigger extends AbstractWandAction {
                     return proj;
                 });
             }
-            /*
-            AbstractProjAction finalProj = proj1;
-            stats.addProj(() -> {
-
-                AbstractModifiableProj proj = finalProj.relatedProjectile(context, stats);
-                proj.addTrigger(newStats);
-                return proj;
-            });
-             */
         } else if (proj1 != null) { // the case where only one projectile action is found
             proj1.action(context, stats);
         }

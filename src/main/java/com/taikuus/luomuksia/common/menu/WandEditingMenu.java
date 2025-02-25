@@ -181,7 +181,7 @@ public class WandEditingMenu extends AbstractContainerMenu {
                 WandData newData = new WandData();
                 newData.setDeck(deck);
                 newData.setDiscard(oldData.getDiscard());
-                newData.overwriteAllAttr(oldData.allAttr);
+                newData.overwriteAllAttr(oldData.attrList());
                 //Luomuksia.LOGGER.debug("New wandData: " + newData);
                 Wand.writeData(wand, newData);
             }

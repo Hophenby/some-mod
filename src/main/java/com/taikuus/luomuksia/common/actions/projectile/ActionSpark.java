@@ -34,4 +34,9 @@ public class ActionSpark extends AbstractProjAction<ProjectileSpark> {
         );
     }
 
+    @Override
+    public void action(WandContext context, ShotStates stats) {
+        super.action(context, stats);
+        addProjConfigured(context, stats);
+    }
 }

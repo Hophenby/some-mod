@@ -7,6 +7,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+//WIP
+//Texture is currently using the generic_54.png texture, which is a 6x9 chest texture.
 public class WandEditingGui extends AbstractContainerScreen<WandEditingMenu> {
     private static final ResourceLocation CONTAINER_BACKGROUND = ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
 

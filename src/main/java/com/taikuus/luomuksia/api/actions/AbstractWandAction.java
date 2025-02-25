@@ -36,7 +36,11 @@ public abstract class AbstractWandAction {
         return actionItem;
     }
 
-    public abstract void action(WandContext context, ShotStates stats);
+    public void action(WandContext context, ShotStates stats){
+        if (context.isCastLoggable()){
+            context.logCast(this);
+        }
+    };
     public AbstractWandAction(ResourceLocation id, EnumActionTypes type) {
         this.id = id;
         this.type = type;

@@ -22,6 +22,7 @@ public class ActionScatteredMulticast extends AbstractWandAction implements IMod
 
     @Override
     public void action(WandContext context, ShotStates stats) {
+        super.action(context, stats);
         stats.addModifier(INSTANCE);
         context.drawActions(2);
     }

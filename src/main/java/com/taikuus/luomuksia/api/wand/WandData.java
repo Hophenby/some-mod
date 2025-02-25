@@ -75,7 +75,7 @@ public class WandData {
         return new WandData(builder.build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
     }
     public WandData copy() {
-        return new WandData(allAttr, deck.copy(), discard.copy());
+        return new WandData(new ArrayList<>(allAttr), deck.copy(), discard.copy());
     }
     public List<CodecableWandAttr> attrList() {
         return allAttr;
@@ -147,16 +147,29 @@ public class WandData {
 
     public void tick() {
         CodecableWandAttr manaRegen = getAttr(RegistryNames.WAND_MANA_REGEN.get());
+        //restore mana
         getAttr(RegistryNames.WAND_MANA.get()).setValue(
                 Math.min(getAttr(RegistryNames.WAND_MANA.get()).getValue() + manaRegen.getValue(),
                         getAttr(RegistryNames.WAND_MAX_MANA.get()).getValue())
         );
+
+        //Luomuksia.LOGGER.debug("Restoring mana: " + manaRegen.getValue() + " Remaining mana: " + getAttr(RegistryNames.WAND_MANA.get()).getValue());
+
+        //reload and delay
         getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).setValue(
                 Math.max(getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() - 1, 0)
         );
         getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).setValue(
                 Math.max(getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() - 1, 0)
         );
+
+        //reset the last reload and delay ticks when the remaining ticks run out
+        if (getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() == 0) {
+            getAttr(RegistryNames.WAND_LAST_RELOAD_TICKS.get()).setValue(0);
+        }
+        if (getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() == 0) {
+            getAttr(RegistryNames.WAND_LAST_DELAY_TICKS.get()).setValue(0);
+        }
 
     }
 }

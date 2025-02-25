@@ -36,7 +36,7 @@ public class ActionSparkWithTrigger extends AbstractProjAction<ProjectileSpark> 
 
     @Override
     public void action(WandContext context, ShotStates stats) {
-        addDelayAndReload(context);
+        super.action(context, stats);
         ShotStates newStats = stats.childState(1);
         context.parseTrigger(newStats);
         stats.addProj(() -> {

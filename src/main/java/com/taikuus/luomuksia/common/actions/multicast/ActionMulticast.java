@@ -21,6 +21,7 @@ public class ActionMulticast extends AbstractWandAction {
 
     @Override
     public void action(WandContext context, ShotStates stats) {
+        super.action(context, stats);
         context.drawActions(nx);
     }
     @Override

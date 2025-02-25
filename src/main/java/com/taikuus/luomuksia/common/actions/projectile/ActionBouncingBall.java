@@ -24,7 +24,7 @@ public class ActionBouncingBall extends AbstractProjAction<ProjectileBouncingBal
 
     @Override
     public void action(WandContext context, ShotStates stats) {
-        addDelayAndReload(context);
+        super.action(context, stats);
         stats.addProj(() -> {
             var proj = relatedProjectile(context, stats);
             proj.setInitMotion(stats.getPlayer().getLookAngle(),
