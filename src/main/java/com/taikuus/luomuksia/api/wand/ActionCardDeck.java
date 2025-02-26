@@ -81,4 +81,8 @@ public record ActionCardDeck(List<WrappedWandAction> actions){
         return new ActionCardDeck(new CopyOnWriteArrayList<>(actions));
     }
 
+    public static ActionCardDeck empty() {
+        return new ActionCardDeck(new CopyOnWriteArrayList<>());
+    }
+
 }

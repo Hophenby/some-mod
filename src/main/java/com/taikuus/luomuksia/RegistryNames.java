@@ -26,7 +26,7 @@ public enum RegistryNames {
     ACTION_MODIFIER_EXPLOSIVE_HIT("action_modifier_explosive_hit"),
     ACTION_MODIFIER_LIGHT("action_modifier_light"),
     ACTION_MODIFIER_REDIRECTING_HOMING("action_modifier_redirecting_homing"),
-    ACTION_SCATTERED_MULTICAST("action_scattered_multicast"),
+    ACTION_MODIFIER_ORBIT("action_modifier_orbit"),
     ACTION_PROJ_SPARK("action_proj_spark"),
     ACTION_PROJ_SC("action_proj_stonecutter"),
     ACTION_PROJ_BOUNCING("action_proj_bouncing_ball"),

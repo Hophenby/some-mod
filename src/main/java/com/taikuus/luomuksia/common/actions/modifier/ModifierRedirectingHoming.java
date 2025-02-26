@@ -10,7 +10,7 @@ public class ModifierRedirectingHoming extends AbstractModifierAction implements
     public static final ModifierRedirectingHoming INSTANCE = new ModifierRedirectingHoming();
     public ModifierRedirectingHoming() {
         super(RegistryNames.ACTION_MODIFIER_REDIRECTING_HOMING.get());
-        setNumericShowable(TooltipShowableStats.MANA_COST, 60);
+        setNumericShowable(TooltipShowableStats.MANA_COST, 160);
     }
     @Override
     public Vec3 applyMotivePerTick(AbstractModifiableProj proj, Vec3 motion) {

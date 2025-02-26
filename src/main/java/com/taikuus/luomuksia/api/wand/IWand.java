@@ -6,6 +6,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public interface IWand {
-    void createShot(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn);
+    boolean createShot(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn);
     void afterShot(WandContext context, @NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn);
 }

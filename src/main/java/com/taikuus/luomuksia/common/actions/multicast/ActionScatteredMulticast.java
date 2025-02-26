@@ -1,40 +1,42 @@
 package com.taikuus.luomuksia.common.actions.multicast;
 
+import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
-import com.taikuus.luomuksia.api.actions.IModifier;
-import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
+import com.taikuus.luomuksia.api.actions.EnumActionTypes;
+import com.taikuus.luomuksia.api.utils.ShapingFunctions;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
-import com.taikuus.luomuksia.api.actions.EnumActionTypes;
+import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
-import static com.taikuus.luomuksia.RegistryNames.ACTION_SCATTERED_MULTICAST;
+public class ActionScatteredMulticast extends AbstractWandAction {
 
-public class ActionScatteredMulticast extends AbstractWandAction implements IModifier {
-
-    public static final ActionScatteredMulticast INSTANCE = new ActionScatteredMulticast();
-    public ActionScatteredMulticast() {
-        super(ACTION_SCATTERED_MULTICAST.get(), EnumActionTypes.MULTICAST);
+    public static final ActionScatteredMulticast INSTANCEx2 = new ActionScatteredMulticast(2);
+    public static final ActionScatteredMulticast INSTANCEx3 = new ActionScatteredMulticast(3);
+    public static final ActionScatteredMulticast INSTANCEx4 = new ActionScatteredMulticast(4);
+    private final Map<Integer, Double> NX_SCATTER = Map.of(
+            2, Math.PI / 4,
+            3, Math.PI / 6,
+            4, Math.PI / 8
+    );
+    private final int nx;
+    public ActionScatteredMulticast(int nx){
+        super(RegistryNames.getRL("action_scattered_multicast_" + nx), EnumActionTypes.MULTICAST);
+        this.nx = nx;
         setNumericShowable(TooltipShowableStats.MANA_COST, 20);
-        setNumericShowable(TooltipShowableStats.PROJECTILE_INACCURACY, 15f);
+        setNumericShowable(TooltipShowableStats.SCATTER_DEGREE, Math.toDegrees(NX_SCATTER.get(nx)));
     }
 
     @Override
-    public void action(WandContext context, ShotStates stats) {
-        super.action(context, stats);
-        stats.addModifier(INSTANCE);
-        context.drawActions(2);
+    public void play(WandContext context, ShotStates stats) {
+        super.play(context, stats);
+        stats.setShapingFunction(ShapingFunctions.fixedIntervalAngleH(NX_SCATTER.get(nx)));
+        context.drawActions(nx);
+    }
+    @Override
+    public Component getDescription() {
+        return Component.translatable("tooltip.action.luomuksia.action_scattered.desc", nx);
     }
 
-    @Override
-    public void applyModifier(AbstractModifiableProj proj) {
-        proj.inaccuracy += 15f;
-    }
-    @Override
-    public Map<TooltipShowableStats, String> getTooltipShowables() {
-        Map<TooltipShowableStats, String> map = super.getTooltipShowables();
-        map.put(TooltipShowableStats.PROJECTILE_INACCURACY, "15");
-        return map;
-    }
 }

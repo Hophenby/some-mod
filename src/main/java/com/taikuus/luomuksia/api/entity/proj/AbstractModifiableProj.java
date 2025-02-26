@@ -1,6 +1,5 @@
 package com.taikuus.luomuksia.api.entity.proj;
 
-import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.api.actions.*;
 import com.taikuus.luomuksia.api.client.lighter.ProjLightHelper;
 import com.taikuus.luomuksia.api.wand.ShotStates;
@@ -16,7 +15,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -62,7 +60,9 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     private final ProjBounceHelper bouncer = new ProjBounceHelper(0);
     protected int localHurtCooldown = 8;
     protected double critFactor = 0;
-    public Vec3 initAngle = Vec3.ZERO;
+    public Vec3 initVec = Vec3.ZERO;
+    private double orbittingAngle = 0;
+    private Entity orbittingEntity = null;
     public ShotStates deathTrigger;
     public ShotStates hitTrigger;
     public static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
@@ -254,10 +254,10 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
      * Similar to setArrowHeading, it's point the throwable entity to a x, y, z direction.
      */
     public void shoot() {
-        super.shoot(initAngle.x, initAngle.y, initAngle.z, initVelocity, inaccuracy);
+        super.shoot(initVec.x, initVec.y, initVec.z, initVelocity, inaccuracy);
     }
     public void setInitMotion(Vec3 angle, float velocity) {
-        this.initAngle = angle;
+        this.initVec = angle;
         this.initVelocity = velocity;
     }
 
@@ -367,6 +367,22 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         this.inaccuracy += inaccuracy;
     }
 
+    public double getOrbittingAngle() {
+        return orbittingAngle;
+    }
+
+    public void setOrbittingAngle(double orbittingAngle) {
+        this.orbittingAngle = orbittingAngle;
+    }
+
+    public Entity getOrbittingEntity() {
+        return orbittingEntity;
+    }
+
+    public void setOrbittingEntity(Entity orbittingEntity) {
+        this.orbittingEntity = orbittingEntity;
+    }
+
     /**
      * Helper class to apply tickable motion modifiers to the projectile
      */
@@ -376,7 +392,10 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             hookList.add(hook);
         }
         public Vec3 applyMotiveHooks(Vec3 motion) {
-            motion = motion.add(0, -gravity, 0).scale(fricCoef);
+            if (!AbstractModifiableProj.this.isNoGravity()) {
+                motion = motion.add(0, -gravity, 0);
+            }
+            motion = motion.scale(fricCoef);
             if (onGround()){
                 BlockPos groundPos = getBlockPosBelowThatAffectsMyMovement();
                 motion = motion.scale(level().getBlockState(groundPos).getFriction(level(), groundPos, AbstractModifiableProj.this));

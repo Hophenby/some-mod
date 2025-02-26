@@ -31,8 +31,8 @@ public class Wand extends Item implements IWand {
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
-        createShot(worldIn, playerIn, handIn);
-        return new InteractionResultHolder<>(InteractionResult.SUCCESS, playerIn.getItemInHand(handIn));
+        InteractionResult result = createShot(worldIn, playerIn, handIn) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        return new InteractionResultHolder<>(result, playerIn.getItemInHand(handIn));
     }
     public static WandData readData(ItemStack stack) {
         return stack.get(DataComponentRegistry.WAND_DATA);
@@ -65,17 +65,18 @@ public class Wand extends Item implements IWand {
     }
 
     @Override
-    public void createShot(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
-        if (worldIn.isClientSide) {
-            return;
-        }
+    public boolean createShot(@NotNull Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
         // read the wandData from the wand
         WandData data = readOrInitData(playerIn.getItemInHand(handIn));
-        Luomuksia.LOGGER.debug("Wand wandData: " + data);
+        // Luomuksia.LOGGER.debug("Wand wandData: " + data);
         // check if the wand is ready to shoot
         if (data.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() > 0 ||
                 data.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() > 0) {
-            return;
+            return false;
+        }
+        // if player is client side, just tell them they have successfully shot the wand
+        if (worldIn.isClientSide) {
+            return true;
         }
         // create a new context
         WandContext context = new WandContext(
@@ -86,6 +87,7 @@ public class Wand extends Item implements IWand {
                 data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).getValue());
         // shoot the wand
         context.shoot(worldIn, playerIn, handIn, this);
+        return true;
     }
     /**
      * Called after the shot is done
@@ -115,7 +117,7 @@ public class Wand extends Item implements IWand {
             data.getAttr(RegistryNames.WAND_ACCUMULATED_RELOAD_TICKS.get()).setValue(data.getAttr(RegistryNames.WAND_BASIC_RELOAD_TICKS.get()).getValue());
         }
         // apply the cooldown
-        playerIn.getCooldowns().addCooldown(this, getters.getStartReload() ? Math.max(getters.getDelayTicks(), getters.getReloadTicks()) : getters.getDelayTicks());
+        // playerIn.getCooldowns().addCooldown(this, getters.getStartReload() ? Math.max(getters.getDelayTicks(), getters.getReloadTicks()) : getters.getDelayTicks());
 
         writeData(playerIn.getItemInHand(handIn), data);
         Luomuksia.LOGGER.debug("Wand wandData after shot: " + readData(playerIn.getItemInHand(handIn)).toString());

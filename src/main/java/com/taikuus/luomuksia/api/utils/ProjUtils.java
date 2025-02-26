@@ -10,18 +10,25 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
 
 public class ProjUtils {
+    @Nullable
     public static Vec3 findTarget(Vec3 start, Level world, double range, boolean targetingPlayers) {
+        LivingEntity target = findEntityTarget(start, world, range, targetingPlayers);
+        return target == null ? null : target.getEyePosition();
+    }
+    @Nullable
+    public static LivingEntity findEntityTarget(Vec3 start, Level world, double range, boolean targetingPlayers) {
         AABB aabb = new AABB(start.x, start.y, start.z, start.x, start.y, start.z).inflate(range);
         return world.getEntities(null, aabb).stream()
                 .filter(entity -> targetingPlayers ? entity instanceof LivingEntity : entity instanceof Mob)
+                .map(entity -> (LivingEntity) entity)
                 .filter(entity -> entity.isAlive() && isNoBlockBetween(world, start, entity.getEyePosition()))
-                .map(Entity::getEyePosition)
-                .min(Comparator.comparingDouble(start::distanceToSqr))
+                .min(Comparator.comparingDouble((v) -> start.distanceToSqr(v.getEyePosition())))
                 .orElse(null);
     }
 

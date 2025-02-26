@@ -32,8 +32,8 @@ public class ActionStoneCutter extends AbstractProjAction<ProjectileStoneCutter>
         );
     }
     @Override
-    public void action(WandContext context, ShotStates stats) {
-        super.action(context, stats);
+    public void play(WandContext context, ShotStates stats) {
+        super.play(context, stats);
         addProjConfigured(context, stats);
     }
 }

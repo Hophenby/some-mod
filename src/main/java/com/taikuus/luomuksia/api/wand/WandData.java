@@ -65,14 +65,14 @@ public class WandData {
         }
     }
     public WandData() {
-        this(new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
+        this(ActionCardDeck.empty(), ActionCardDeck.empty());
     }
     public static WandData fromTier(int tier) {
         //Luomuksia.LOGGER.debug("Creating wand wandData from tier: " + tier);
-        return new WandData(new WandAttrProvider.TieredAttrBuilder(tier).build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
+        return new WandData(new WandAttrProvider.TieredAttrBuilder(tier).build(), ActionCardDeck.empty(), ActionCardDeck.empty());
     }
     public static WandData custom(WandAttrProvider.TieredAttrBuilder builder) {
-        return new WandData(builder.build(), new ActionCardDeck(new ArrayList<>()), new ActionCardDeck(new ArrayList<>()));
+        return new WandData(builder.build(), ActionCardDeck.empty(), ActionCardDeck.empty());
     }
     public WandData copy() {
         return new WandData(new ArrayList<>(allAttr), deck.copy(), discard.copy());
@@ -95,7 +95,7 @@ public class WandData {
         this.discard.draw(discard);
     }
     public ActionCardDeck getAllActions() {
-        ActionCardDeck all = new ActionCardDeck(new ArrayList<>());
+        ActionCardDeck all = ActionCardDeck.empty();
         all.draw(deck);
         all.draw(discard);
         all.orderDeck();

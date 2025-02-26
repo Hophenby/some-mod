@@ -14,8 +14,8 @@ public abstract class AbstractModifierAction extends AbstractWandAction implemen
     }
 
     @Override
-    public void action(WandContext context, ShotStates stats) {
-        super.action(context, stats);
+    public void play(WandContext context, ShotStates stats) {
+        super.play(context, stats);
         stats.addModifier(this);
         context.drawActions(1);
     }

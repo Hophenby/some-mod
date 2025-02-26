@@ -10,7 +10,7 @@ public class ModifierExplosiveHit extends AbstractModifierAction implements IOnH
     public static final ModifierExplosiveHit INSTANCE = new ModifierExplosiveHit();
     public ModifierExplosiveHit() {
         super(RegistryNames.ACTION_MODIFIER_EXPLOSIVE_HIT.get());
-        setNumericShowable(TooltipShowableStats.MANA_COST, 70);
+        setNumericShowable(TooltipShowableStats.MANA_COST, 170);
         setNumericShowable(TooltipShowableStats.EXPLOSION_LEVEL, 2);
     }
     /*

@@ -13,6 +13,6 @@ public class ModifierLight extends AbstractModifierAction {
 
     public ModifierLight() {
         super(RegistryNames.ACTION_MODIFIER_LIGHT.get());
-        setNumericShowable(TooltipShowableStats.MANA_COST, 1);
+        setNumericShowable(TooltipShowableStats.MANA_COST, 4);
     }
 }

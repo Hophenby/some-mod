@@ -13,8 +13,8 @@ public abstract class AbstractProjAction<P extends AbstractModifiableProj> exten
         super(id, EnumActionTypes.PROJECTILE);
     }
     public abstract P relatedProjectile(WandContext context, ShotStates stats);
-    public void action(WandContext context, ShotStates stats) {
-        super.action(context, stats);
+    public void play(WandContext context, ShotStates stats) {
+        super.play(context, stats);
         addDelayAndReload(context);
     }
     protected void addProjConfigured(WandContext context, ShotStates stats) {

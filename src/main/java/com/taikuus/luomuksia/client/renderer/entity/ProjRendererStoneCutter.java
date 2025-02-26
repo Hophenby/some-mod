@@ -39,7 +39,8 @@ public class ProjRendererStoneCutter extends EntityRenderer<ProjectileStoneCutte
         Vec3 projDir = pEntity.getDeltaMovement();
 
         //Rotation axis
-        Vec3 yAxis = new Vec3(0.0, 1.0, 0.0);
+        //We need to avoid the cross product of parallel vectors
+        Vec3 yAxis = new Vec3(0.0, 1.0, 1E-7).normalize();
         Vec3 projDirRot = projDir.cross(yAxis);
 
         //Rotation angles

@@ -23,11 +23,11 @@ public class ActionAddTrigger extends AbstractWandAction {
         setNumericShowable(TooltipShowableStats.MANA_COST, 20);
     }
     @Override
-    public void action(WandContext context, ShotStates stats) {
+    public void play(WandContext context, ShotStates stats) {
         /*
          * This action will draw 2 projectile actions from the deck, and add them as triggers to the wand.
          */
-        super.action(context, stats);
+        super.play(context, stats);
 
         AbstractProjAction<?> proj1 = null;
 
@@ -52,7 +52,7 @@ public class ActionAddTrigger extends AbstractWandAction {
             ShotStates newStats = stats.childState(1);
             ShotStates tempStats = stats.childState();
 
-            proj1.action(context, tempStats);
+            proj1.play(context, tempStats);
             context.parseTrigger(newStats);
 
             List<Supplier<? extends Entity>> projList = tempStats.lastProjs();
@@ -68,7 +68,7 @@ public class ActionAddTrigger extends AbstractWandAction {
                 });
             }
         } else if (proj1 != null) { // the case where only one projectile action is found
-            proj1.action(context, stats);
+            proj1.play(context, stats);
         }
     }
 }

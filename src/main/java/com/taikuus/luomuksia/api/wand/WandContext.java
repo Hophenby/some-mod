@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WandContext {
-    private final ActionCardDeck deck = new ActionCardDeck(new ArrayList<>());
-    private final ActionCardDeck hand = new ActionCardDeck(new ArrayList<>());
-    private final ActionCardDeck discard = new ActionCardDeck(new ArrayList<>());
+    private final ActionCardDeck deck = ActionCardDeck.empty();
+    private final ActionCardDeck hand = ActionCardDeck.empty();
+    private final ActionCardDeck discard = ActionCardDeck.empty();
     private final List<AbstractWandAction> loggableCastActions = new ArrayList<>();
     private int storedMana;
     private int reloadTicks;
@@ -164,7 +164,7 @@ public class WandContext {
         // move action to hand
         hand.draw(action);
         // cast action
-        action.action().action(this, currentState);
+        action.action().play(this, currentState);
     }
     public void logCast(AbstractWandAction action) {
         loggableCastActions.add(action);

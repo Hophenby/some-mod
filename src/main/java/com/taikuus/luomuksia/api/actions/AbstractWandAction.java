@@ -36,7 +36,7 @@ public abstract class AbstractWandAction {
         return actionItem;
     }
 
-    public void action(WandContext context, ShotStates stats){
+    public void play(WandContext context, ShotStates stats){
         if (context.isCastLoggable()){
             context.logCast(this);
         }
@@ -92,7 +92,14 @@ public abstract class AbstractWandAction {
         String translatedType = getType().translatable().getString();
         map.put(TooltipShowableStats.ACTION_TYPE, translatedType);
         numericShowables.forEach((stat, value) -> {
-            if (!Objects.equals(stat.defaultValue.get(), value)) map.put(stat, String.valueOf(value));
+            if (!Objects.equals(stat.defaultValue.get(), value)) {
+                if (value instanceof Float)
+                    map.put(stat, String.format("%.1f", value));
+                else if (value instanceof Double)
+                    map.put(stat, String.format("%.2f", value));
+                else
+                    map.put(stat, String.valueOf(value));
+            }
         });
         return map;
     }
@@ -112,6 +119,7 @@ public abstract class AbstractWandAction {
         DAMAGE_TYPE_ELECTRIC("damage_type_electric", () -> 0.0F),
         DAMAGE_TYPE_CURSE("damage_type_curse", () -> 0.0F),
         EXPLOSION_LEVEL("explosion_level", () -> 0),
+        SCATTER_DEGREE("scatter_degree", () -> 0.0D),
         ;
         private final String name;
         private final Supplier<?> defaultValue;

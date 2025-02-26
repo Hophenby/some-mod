@@ -5,6 +5,8 @@ import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +20,7 @@ public class ShotStates {
     private final Player player;
     private final Level world;
     private int lastAddedCount = 0;
+    private TriFunction<Integer, Integer, Vec3, Vec3> shapingFunction = null;
 
     public ShotStates(int numFirstDraw, Level world, Player player) {
         this.numFirstDraw = numFirstDraw;
@@ -82,11 +85,26 @@ public class ShotStates {
     }
 
     /**
+     * Set the shaping function for the projectiles
+     * @param shapingFunc the shaping function
+     *                    The function should take an integer index of multiple projectiles and an integer count of multiple projectiles
+     *                    Then it should take the deltaMovement of the projectile which is its initial movement
+     *                    The function should return the new deltaMovement of the projectile
+     */
+    public void setShapingFunction(TriFunction<Integer, Integer, Vec3, Vec3> shapingFunc) {
+        // only set the shaping function if it is not already set
+        if (shapingFunction == null) {
+            shapingFunction = shapingFunc;
+        }
+    }
+    /**
      * Apply all modifiers to the projectiles and shoot them, adding them to the world
      */
     public void applyModifiersAndShoot() {
         List<Entity> tempProjList = new ArrayList<>();
         //Luomuksia.LOGGER.debug("Applying modifiers to " + projList.size() + " projectiles");
+        int projIndex = 0;
+        int projCount = projList.size();
         for (Supplier<? extends Entity> wrappedProj : projList) {
             Entity proj = wrappedProj.get();
             if (proj instanceof AbstractModifiableProj modProj) {
@@ -95,7 +113,9 @@ public class ShotStates {
                 }
                 modProj.shoot();
             }
+            proj.setDeltaMovement(shapingFunction.apply(projIndex, projCount, proj.getDeltaMovement()));
             tempProjList.add(proj);
+            projIndex++;
         }
         //Luomuksia.LOGGER.debug("Adding " + tempProjList.size() + " projectiles to the world");
         for (Entity proj : tempProjList) {

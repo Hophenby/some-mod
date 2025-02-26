@@ -10,7 +10,7 @@ public class ModifierHoming extends AbstractModifierAction implements IMotionMod
     public static final ModifierHoming INSTANCE = new ModifierHoming();
     public ModifierHoming() {
         super(RegistryNames.ACTION_MODIFIER_HOMING.get());
-        setNumericShowable(TooltipShowableStats.MANA_COST, 60);
+        setNumericShowable(TooltipShowableStats.MANA_COST, 160);
     }
     @Override
     public Vec3 applyMotivePerTick(AbstractModifiableProj proj, Vec3 motion) {

@@ -3,6 +3,7 @@ package com.taikuus.luomuksia.setup;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.common.actions.modifier.*;
 import com.taikuus.luomuksia.common.actions.multicast.ActionMulticast;
+import com.taikuus.luomuksia.common.actions.multicast.ActionShapedH;
 import com.taikuus.luomuksia.common.actions.multicast.ActionScatteredMulticast;
 import com.taikuus.luomuksia.common.actions.other.ActionAddTrigger;
 import com.taikuus.luomuksia.common.actions.other.TestAction;
@@ -37,6 +38,7 @@ public class WandActionRegistry {
         register(ModifierAccelerate.INSTANCE);
         register(ModifierHoming.INSTANCE);
         register(ModifierLight.INSTANCE);
+        register(ModifierOrbit.INSTANCE);
         register(ModifierRedirectingHoming.INSTANCE);
         register(ModifierExplosiveHit.INSTANCE);
         register(ActionSpark.INSTANCE);
@@ -46,7 +48,13 @@ public class WandActionRegistry {
         register(ActionMulticast.INSTANCEx3);
         register(ActionMulticast.INSTANCEx4);
         register(ActionMulticast.INSTANCEx8);
-        register(ActionScatteredMulticast.INSTANCE);
+        register(ActionScatteredMulticast.INSTANCEx2);
+        register(ActionScatteredMulticast.INSTANCEx3);
+        register(ActionScatteredMulticast.INSTANCEx4);
         register(ActionAddTrigger.INSTANCE);
+        register(ActionShapedH.INSTANCEx2);
+        register(ActionShapedH.INSTANCEx3);
+        register(ActionShapedH.INSTANCEx5);
+        register(ActionShapedH.INSTANCEx6);
     }
 }

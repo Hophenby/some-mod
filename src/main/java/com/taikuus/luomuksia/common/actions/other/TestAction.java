@@ -20,8 +20,8 @@ public class TestAction extends AbstractWandAction {
 
 
     @Override
-    public void action(WandContext context, ShotStates stats) {
-        super.action(context, stats);
+    public void play(WandContext context, ShotStates stats) {
+        super.play(context, stats);
         Luomuksia.LOGGER.info("Test Action");
     }
 }
