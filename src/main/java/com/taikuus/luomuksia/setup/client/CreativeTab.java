@@ -32,11 +32,11 @@ public class CreativeTab {
                 output.accept(Wand.createWand(9));
                 output.accept(Wand.createWand(12));
                 output.accept(Wand.createWand(new WandAttrProvider.TieredAttrBuilder(12)
-                        .determineSpecificValue(RegistryNames.WAND_MANA.get(), Integer.MAX_VALUE)
-                        .determineSpecificValue(RegistryNames.WAND_MANA_REGEN.get(), Integer.MAX_VALUE)
-                        .determineSpecificValue(RegistryNames.WAND_MAX_MANA.get(), Integer.MAX_VALUE)
-                        .determineSpecificValue(RegistryNames.WAND_BASIC_DELAY_TICKS.get(), Integer.MIN_VALUE)
-                        .determineSpecificValue(RegistryNames.WAND_BASIC_RELOAD_TICKS.get(), Integer.MIN_VALUE)
+                        .determineSpecificValue(RegistryNames.WAND_MANA.get(), Integer.MAX_VALUE / 2 - 1)
+                        .determineSpecificValue(RegistryNames.WAND_MANA_REGEN.get(), Integer.MAX_VALUE / 2)
+                        .determineSpecificValue(RegistryNames.WAND_MAX_MANA.get(), Integer.MAX_VALUE / 2)
+                        .determineSpecificValue(RegistryNames.WAND_BASIC_DELAY_TICKS.get(), Integer.MIN_VALUE / 2)
+                        .determineSpecificValue(RegistryNames.WAND_BASIC_RELOAD_TICKS.get(), Integer.MIN_VALUE / 2)
                         .determineSpecificValue(RegistryNames.WAND_MAX_SLOTS.get(), 26)
                 ));
                 output.accept(ItemsAndBlocksRegistry.WAND_EDITING_TABLE_ITEM.get());

@@ -14,8 +14,8 @@ public class FadeLightFxProj extends AbstractModifiableProj {
     public FadeLightFxProj(AbstractModifiableProj from) {
         super(EntityRegistry.FADE_LIGHT.get(), from.getOwner(), from.getX(), from.getY(), from.getZ(), from.level());
         this.setDynamicLightLevel(from.getDynamicLightLevel());
-        this.maxExistingTicksLimit = 16;
-        this.maxExistingTicks = 16;
+        this.setMaxExistingTicksLimit(16);
+        this.setMaxExistingTicks(16);
         this.noPhysics = true;
         this.setInvisible(true);
         this.setInvulnerable(true);

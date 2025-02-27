@@ -26,7 +26,7 @@ public class ModifierOrbit extends AbstractModifierAction implements IMotionModi
             return motion;
         }
         if (proj.getOrbittingEntity().isRemoved()
-                || proj.timer < 2 // wait for the entity to be away from the player
+                || proj.getTimer() < 2 // wait for the entity to be away from the player
         ) {
             return motion;
         }

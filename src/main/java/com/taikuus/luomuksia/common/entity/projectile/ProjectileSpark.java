@@ -14,8 +14,8 @@ public class ProjectileSpark extends AbstractModifiableProj {
     }
     public ProjectileSpark(Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         super(EntityRegistry.PROJECTILE_SPARK.get(), pOwner, pX, pY, pZ, pLevel);
-        maxExistingTicks += 20 * 4;
-        damage += 1.0f;
+        setMaxExistingTicks(getMaxExistingTicks() + 20 * 4);
+        setDamage(getProjBoundDamage() + 1.0f);
         critFactor += 0.06f;
         setDynamicLightLevel(5);
     }

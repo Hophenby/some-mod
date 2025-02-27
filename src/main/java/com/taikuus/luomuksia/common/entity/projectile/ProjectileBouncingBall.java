@@ -22,8 +22,8 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
     }
     public ProjectileBouncingBall(Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         super(EntityRegistry.PROJECTILE_BOUNCING_BALL.get(), pOwner, pX, pY, pZ, pLevel);
-        maxExistingTicks = 20 * 4;
-        damage += 0.3f;
+        setMaxExistingTicks(20 * 4);
+        setDamage(getProjBoundDamage() + 0.3f);
         critFactor += 0.12f;
         this.modifiersHelper.addHook(new IOnBounceModifier() {
             @Override
@@ -33,7 +33,7 @@ public class ProjectileBouncingBall extends AbstractModifiableProj {
             }
             @Override
             public void onBounce(AbstractModifiableProj proj, HitResult result, Direction projFacing) {
-                proj.damage += 0.03f;
+                proj.setDamage(proj.getProjBoundDamage() + 0.03f);
             }
         });
     }

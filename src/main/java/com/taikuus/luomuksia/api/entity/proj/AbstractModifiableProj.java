@@ -37,31 +37,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractModifiableProj extends Projectile implements IModifiableProj {
-    public int timer = 0;
-    /**
-     * The maximum number of ticks that the projectile can exist. This can be modified by some actions.
-     */
-    public int maxExistingTicks = 20 * 60; // 1 minute
-    /**
-     * The maximum number of "maximum number of ticks" that the projectile can exist.
-     * This can NOT be modified by some actions. It is used to prevent the projectile from existing forever.
-     */
-    public int maxExistingTicksLimit = 20 * 3600; // an hour
+    private int timer = 0;
+    private int maxExistingTicks = 20 * 60; // 1 minute
+    private int maxExistingTicksLimit = 20 * 3600; // an hour
     public boolean hitLiquid = false;
     public boolean hurtEntity = true;
     public boolean piercing = false;
-    public float damage = 0.0f;
-    public float knockback = 0.0f;
-    public float gravity = 0.03f;
-    public float fricCoef = 0.97f;
-    public float inaccuracy = 0.0f;
-    public float initVelocity = 1.0f;
+    private float damage = 0.0f;
+    private float knockback = 0.0f;
+    private float gravity = 0.03f;
+    private float fricCoef = 0.97f;
+    private float inaccuracy = 0.0f;
+    private float initVelocity = 1.0f;
     private final ProjLightHelper lighter = new ProjLightHelper(this);
     private final ProjBounceHelper bouncer = new ProjBounceHelper(0);
     protected int localHurtCooldown = 8;
     protected double critFactor = 0;
-    public Vec3 initVec = Vec3.ZERO;
-    private double orbittingAngle = 0;
+    private Vec3 initVec = Vec3.ZERO;
     private Entity orbittingEntity = null;
     public ShotStates deathTrigger;
     public ShotStates hitTrigger;
@@ -75,29 +67,33 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         this(pEntityType, pLevel);
         setOwner(pOwner);
         setPos(pX, pY, pZ);
-        maxExistingTicks = Math.min(maxExistingTicks, getMaxExistingTicksLimit());
+        setMaxExistingTicks(Math.min(getMaxExistingTicks(), getMaxExistingTicksLimit()));
     }
+    /**
+     * The maximum number of "maximum number of ticks" that the projectile can exist.
+     * This can NOT be modified by some actions. It is used to prevent the projectile from existing forever.
+     */
     public int getMaxExistingTicksLimit(){
         return maxExistingTicksLimit;
     }
+    /**
+     * The maximum number of ticks that the projectile can exist. This can be modified by some actions.
+     */
     public int getMaxExistingTicks() {
         return maxExistingTicks;
     }
 
-    public float getDamage() {
-        return getProjBoundDamage();
+    public float getProjBoundDamage() {
+        return damage;
     }
     private boolean nextCritChance(EntityHitResult result) {
         var critFactor = getCalcedCritFactor(result);
         return random.nextFloat() < critFactor;
     }
     private float getCritConsideredDamage(EntityHitResult result, boolean critFlag){
-        return critFlag ? getDamage() * (Math.max(0.75f, (float) getCalcedCritFactor(result)) + 1) : getDamage();
+        return critFlag ? damage * (Math.max(0.75f, (float) getCalcedCritFactor(result)) + 1) : getProjBoundDamage();
     }
 
-    public float getProjBoundDamage() {
-        return damage;
-    }
 
     public ProjLightHelper getLighter() {
         return lighter;
@@ -127,13 +123,13 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         tag.putInt("light_level", this.entityData.get(LIGHT_LEVEL));
     }
     public boolean isExpired() {
-        return timer > getMaxExistingTicks();
+        return getTimer() > getMaxExistingTicks();
     }
 
     @Override
     public void tick() {
         // The projectile will be removed if it exists for too long.
-        timer++;
+        setTimer(getTimer() + 1);
         if (!this.level().isClientSide && this.isExpired()) {
             this.attemptRemoval();
             return;
@@ -183,7 +179,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     protected void onHitEntity(@NotNull EntityHitResult entityResult) {
         super.onHitEntity(entityResult);
         if (!this.level().isClientSide) {
-            if (this.getDamage() > 0 && this.canHurtEntity(entityResult.getEntity())){
+            if (this.getProjBoundDamage() > 0 && this.canHurtEntity(entityResult.getEntity())){
                 boolean critFlag = nextCritChance(entityResult);
                 //Luomuksia.LOGGER.debug("Crit chance: " + getCalcedCritFactor(entityResult) + " critFlag: " + critFlag);
                 if (critFlag) {
@@ -198,7 +194,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
                     livingOwner.setLastHurtMob(entityResult.getEntity());
                 }
             }
-            if (this.knockback > 0) {
+            if (this.getKnockback() > 0) {
                 entityResult.getEntity().push(this.getDeltaMovement().x, this.getDeltaMovement().y, this.getDeltaMovement().z);
             }
             this.attemptRemoval();
@@ -254,11 +250,11 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
      * Similar to setArrowHeading, it's point the throwable entity to a x, y, z direction.
      */
     public void shoot() {
-        super.shoot(initVec.x, initVec.y, initVec.z, initVelocity, inaccuracy);
+        super.shoot(getInitVec().x, getInitVec().y, getInitVec().z, getInitVelocity(), getInaccuracy());
     }
     public void setInitMotion(Vec3 angle, float velocity) {
-        this.initVec = angle;
-        this.initVelocity = velocity;
+        this.setInitVec(angle);
+        this.setInitVelocity(velocity);
     }
 
 
@@ -364,16 +360,9 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     }
 
     public void addInaccuracy(double inaccuracy) {
-        this.inaccuracy += inaccuracy;
+        this.setInaccuracy((float) (this.getInaccuracy() + inaccuracy));
     }
 
-    public double getOrbittingAngle() {
-        return orbittingAngle;
-    }
-
-    public void setOrbittingAngle(double orbittingAngle) {
-        this.orbittingAngle = orbittingAngle;
-    }
 
     public Entity getOrbittingEntity() {
         return orbittingEntity;
@@ -381,6 +370,66 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
 
     public void setOrbittingEntity(Entity orbittingEntity) {
         this.orbittingEntity = orbittingEntity;
+    }
+
+    public int getTimer() {
+        return timer;
+    }
+
+    public void setTimer(int timer) {
+        this.timer = timer;
+    }
+
+    public void setMaxExistingTicks(int maxExistingTicks) {
+        this.maxExistingTicks = maxExistingTicks;
+    }
+
+    public void setMaxExistingTicksLimit(int maxExistingTicksLimit) {
+        this.maxExistingTicksLimit = maxExistingTicksLimit;
+    }
+
+    public void setDamage(float damage) {
+        this.damage = damage;
+    }
+
+    public float getKnockback() {
+        return knockback;
+    }
+
+    public void setKnockback(float knockback) {
+        this.knockback = knockback;
+    }
+
+    public float getFricCoef() {
+        return fricCoef;
+    }
+
+    public void setFricCoef(float fricCoef) {
+        this.fricCoef = fricCoef;
+    }
+
+    public float getInaccuracy() {
+        return inaccuracy;
+    }
+
+    public void setInaccuracy(float inaccuracy) {
+        this.inaccuracy = inaccuracy;
+    }
+
+    public float getInitVelocity() {
+        return initVelocity;
+    }
+
+    public void setInitVelocity(float initVelocity) {
+        this.initVelocity = initVelocity;
+    }
+
+    public Vec3 getInitVec() {
+        return initVec;
+    }
+
+    public void setInitVec(Vec3 initVec) {
+        this.initVec = initVec;
     }
 
     /**
@@ -395,7 +444,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             if (!AbstractModifiableProj.this.isNoGravity()) {
                 motion = motion.add(0, -gravity, 0);
             }
-            motion = motion.scale(fricCoef);
+            motion = motion.scale(getFricCoef());
             if (onGround()){
                 BlockPos groundPos = getBlockPosBelowThatAffectsMyMovement();
                 motion = motion.scale(level().getBlockState(groundPos).getFriction(level(), groundPos, AbstractModifiableProj.this));

@@ -43,14 +43,14 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
 
     public ProjectileStoneCutter(Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         super(EntityRegistry.PROJECTILE_STONE_CUTTER.get(), pOwner, pX, pY, pZ, pLevel);
-        maxExistingTicks = 20 * 7;
-        damage = 1.0f;
+        setMaxExistingTicks(20 * 7);
+        setDamage(1.0f);
         critFactor = 0.02f;
     }
     @Override
     public void tick(){
         super.tick();
-        eyeRelatedXRot = (timer);
+        eyeRelatedXRot = (getTimer());
         eyeRelatedYRot = ((float) (Math.PI / 2f));
         if (!this.level().isClientSide) {
             if ((this.getDeltaMovement().length() < 0.2f && this.onGround()) || this.removeFlag) {
@@ -90,10 +90,10 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
     protected void onHitEntity(@NotNull EntityHitResult pResult) {
         Entity entity = pResult.getEntity();
         float velocity = (float) this.getDeltaMovement().length();
-        float dmg = Mth.clamp(velocity * damage, 0.0f, (float) Integer.MAX_VALUE);
+        float dmg = Mth.clamp(velocity * getProjBoundDamage(), 0.0f, (float) Integer.MAX_VALUE);
 
         if(entity.hurt(getDamageSource(), dmg)){
-            Vec3 knockbackMotion = this.getDeltaMovement().multiply((double) this.knockback + 0.1D, 0.0D, (double) this.knockback + 0.1D);
+            Vec3 knockbackMotion = this.getDeltaMovement().multiply((double) this.getKnockback() + 0.1D, 0.0D, (double) this.getKnockback() + 0.1D);
             entity.push(knockbackMotion.x, 0.1D, knockbackMotion.z);
         }
         this.playSound(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));

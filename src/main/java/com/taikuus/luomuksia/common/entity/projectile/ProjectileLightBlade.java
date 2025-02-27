@@ -34,7 +34,7 @@ public class ProjectileLightBlade extends AbstractModifiableProj {
 
     protected ProjectileLightBlade(EntityType<? extends AbstractModifiableProj> pEntityType, Entity pOwner, double pX, double pY, double pZ, Level pLevel) {
         super(PROJECTILE_LIGHT_BLADE.get(), pOwner, pX, pY, pZ, pLevel);
-        this.maxExistingTicks = 3;
+        this.setMaxExistingTicks(3);
     }
     private Vec3 bladeStart;
     private Vec3 bladeEnd;
@@ -54,7 +54,7 @@ public class ProjectileLightBlade extends AbstractModifiableProj {
     @Override
     public void tick() {
         super.tick();
-        if (timer % 2 == 0 && !this.bladeEndFlag) {
+        if (getTimer() % 2 == 0 && !this.bladeEndFlag) {
             var blade = this.getBladePoints();
             blade.add(new Vec3(this.getX(), this.getY(), this.getZ()));
             this.setBladePoints(blade);

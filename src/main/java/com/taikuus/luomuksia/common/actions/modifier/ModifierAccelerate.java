@@ -14,7 +14,7 @@ public class ModifierAccelerate extends AbstractModifierAction implements IMotio
 
     @Override
     public Vec3 applyMotivePerTick(AbstractModifiableProj proj, Vec3 motion) {
-        return proj.timer > 30 ? motion : motion.add(motion.normalize().scale(0.1f));
+        return proj.getTimer() > 30 ? motion : motion.add(motion.normalize().scale(0.1f));
     }
 
 }

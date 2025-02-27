@@ -110,7 +110,7 @@ public class ProjBounceHelper {
             reverseVelocity(proj, hitDirectionAxis, restitutionCoef);
             //proj.playSound(proj.getHitSound(), 1.0F, 1.2F / (proj.getRandom().nextFloat() * 0.2F + 0.9F)); //TODO
 
-            target.hurt(proj.getDamageSource(), proj.damage);
+            target.hurt(proj.getDamageSource(), proj.getProjBoundDamage());
             proj.modifiersHelper.applyBounceHooks(result, hitDirection);
 
         }

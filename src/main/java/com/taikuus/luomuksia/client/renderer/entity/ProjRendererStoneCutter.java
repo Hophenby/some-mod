@@ -60,7 +60,7 @@ public class ProjRendererStoneCutter extends EntityRenderer<ProjectileStoneCutte
                 0.0F, 0.2F, 0.0F);
         pPoseStack.translate(-0.5, 0.0, -0.5);
         var model = this.dispatcher.getBlockModel(blockstate);
-        for (var renderType : model.getRenderTypes(blockstate, RandomSource.create(pEntity.maxExistingTicks), net.neoforged.neoforge.client.model.data.ModelData.EMPTY))
+        for (var renderType : model.getRenderTypes(blockstate, RandomSource.create(pEntity.getMaxExistingTicks()), net.neoforged.neoforge.client.model.data.ModelData.EMPTY))
             this.dispatcher
                     .getModelRenderer()
                     .tesselateBlock(
@@ -72,7 +72,7 @@ public class ProjRendererStoneCutter extends EntityRenderer<ProjectileStoneCutte
                             pBuffer.getBuffer(net.neoforged.neoforge.client.RenderTypeHelper.getMovingBlockRenderType(renderType)),
                             false,
                             RandomSource.create(),
-                            pEntity.maxExistingTicks,
+                            pEntity.getMaxExistingTicks(),
                             OverlayTexture.NO_OVERLAY,
                             net.neoforged.neoforge.client.model.data.ModelData.EMPTY,
                             renderType

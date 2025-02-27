@@ -113,7 +113,7 @@ public class ShotStates {
                 }
                 modProj.shoot();
             }
-            proj.setDeltaMovement(shapingFunction.apply(projIndex, projCount, proj.getDeltaMovement()));
+            if (shapingFunction != null) proj.setDeltaMovement(shapingFunction.apply(projIndex, projCount, proj.getDeltaMovement()));
             tempProjList.add(proj);
             projIndex++;
         }
