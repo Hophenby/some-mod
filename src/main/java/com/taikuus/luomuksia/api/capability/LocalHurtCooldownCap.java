@@ -13,11 +13,10 @@ import java.util.HashMap;
 import static com.taikuus.luomuksia.setup.CapAndAttachmentRegistry.LOCAL_HURT_ATTACHMENT;
 
 public class LocalHurtCooldownCap implements ILocalHurtCooldownCap{
-    private SerializableCooldownMap cooldowns;
-    private LivingEntity entity;
+    private final SerializableCooldownMap cooldowns;
+    private final LivingEntity entity;
 
     public LocalHurtCooldownCap(LivingEntity entity) {
-
         this.cooldowns = entity.getData(LOCAL_HURT_ATTACHMENT);
         this.entity = entity;
     }
@@ -66,6 +65,7 @@ public class LocalHurtCooldownCap implements ILocalHurtCooldownCap{
 
         @Override
         public void deserializeNBT(HolderLookup.@NotNull Provider provider, @NotNull CompoundTag nbt) {
+            // a glitch that entities which haven't been in the map will not be added from the nbt
             forEach((entity, cd) -> put(entity, nbt.getInt(entity.getStringUUID())));
         }
         public void checkRemovedEntities(LivingEntity entity){

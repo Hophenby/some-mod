@@ -1,11 +1,11 @@
 package com.taikuus.luomuksia.setup.client;
 
-import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
-import com.taikuus.luomuksia.api.wand.WandAttrProvider;
+import com.taikuus.luomuksia.api.wand.wandattr.WandAttrProvider;
 import com.taikuus.luomuksia.common.item.Wand;
 import com.taikuus.luomuksia.setup.ItemsAndBlocksRegistry;
 import com.taikuus.luomuksia.setup.WandActionRegistry;
+import com.taikuus.luomuksia.setup.WandAttrRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -31,13 +31,13 @@ public class CreativeTab {
                 output.accept(Wand.createWand(6));
                 output.accept(Wand.createWand(9));
                 output.accept(Wand.createWand(12));
-                output.accept(Wand.createWand(new WandAttrProvider.TieredAttrBuilder(12)
-                        .determineSpecificValue(RegistryNames.WAND_MANA.get(), Integer.MAX_VALUE / 2 - 1)
-                        .determineSpecificValue(RegistryNames.WAND_MANA_REGEN.get(), Integer.MAX_VALUE / 2)
-                        .determineSpecificValue(RegistryNames.WAND_MAX_MANA.get(), Integer.MAX_VALUE / 2)
-                        .determineSpecificValue(RegistryNames.WAND_BASIC_DELAY_TICKS.get(), Integer.MIN_VALUE / 2)
-                        .determineSpecificValue(RegistryNames.WAND_BASIC_RELOAD_TICKS.get(), Integer.MIN_VALUE / 2)
-                        .determineSpecificValue(RegistryNames.WAND_MAX_SLOTS.get(), 26)
+                output.accept(Wand.createWand(WandAttrProvider.TieredAttrBuilder.create()
+                        .addNoSanitize(WandAttrRegistry.ATTR_BASIC_DELAY_TICKS, (int) (Integer.MIN_VALUE / 2))
+                        .addNoSanitize(WandAttrRegistry.ATTR_BASIC_RELOAD_TICKS, (int) (Integer.MIN_VALUE / 2))
+                        .addNoSanitize(WandAttrRegistry.ATTR_MAX_SLOTS, 26)
+                        .addNoSanitize(WandAttrRegistry.ATTR_MAX_MANA, (int) (Integer.MAX_VALUE / 2))
+                        .addNoSanitize(WandAttrRegistry.ATTR_MANA_REGEN, (int) (Integer.MAX_VALUE / 2))
+                        .addNoSanitize(WandAttrRegistry.ATTR_TIER, 99)
                 ));
                 output.accept(ItemsAndBlocksRegistry.WAND_EDITING_TABLE_ITEM.get());
                 for (AbstractWandAction action : WandActionRegistry.getAllRegistries().values()) {

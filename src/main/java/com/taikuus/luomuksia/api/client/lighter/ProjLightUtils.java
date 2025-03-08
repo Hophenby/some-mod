@@ -33,7 +33,7 @@ public class ProjLightUtils {
     /**
      * The limit of light sources.
      */
-    private static final int LIMIT = 60;
+    private static final int LIMIT = 160;
     /**
      * The lock for the set of projectiles that are affected by this modifier.
      */

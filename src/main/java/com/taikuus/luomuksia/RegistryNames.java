@@ -30,6 +30,7 @@ public enum RegistryNames {
     ACTION_PROJ_SPARK("action_proj_spark"),
     ACTION_PROJ_SC("action_proj_stonecutter"),
     ACTION_PROJ_BOUNCING("action_proj_bouncing_ball"),
+    ACTION_PROJ_LIGHTBLADE("action_proj_lightblade"),
 
     DAMAGE_TYPE_CUT("damage_type_cut"),
     DAMAGE_TYPE_PROJ("damage_type_proj"),

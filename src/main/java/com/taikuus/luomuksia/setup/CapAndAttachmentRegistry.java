@@ -3,6 +3,7 @@ package com.taikuus.luomuksia.setup;
 import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.capability.LocalHurtCooldownCap;
+import com.taikuus.luomuksia.api.capability.TerrainDestroyingProgression;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -25,8 +26,16 @@ public class CapAndAttachmentRegistry {
                             .copyOnDeath()
                             .build());
 
+    public static final Supplier<AttachmentType<TerrainDestroyingProgression.SerializableProgressionMap>> TERRAIN_DESTROYING_ATTACHMENT =
+            ATTACHMENT_TYPES.register("terrain_destroying_progression",
+                    () -> AttachmentType.serializable(TerrainDestroyingProgression.SerializableProgressionMap::new)
+                            .copyOnDeath()
+                            .build());
+
     public static final EntityCapability<LocalHurtCooldownCap, Void> LOCAL_HURT_COOLDOWN_CAP = EntityCapability.createVoid(
             RegistryNames.getRL("local_hurt_cooldown_cap"), LocalHurtCooldownCap.class);
+    public static final EntityCapability<TerrainDestroyingProgression, Void> TERRAIN_DESTROYING_CAP = EntityCapability.createVoid(
+            RegistryNames.getRL("terrain_destroying_progression"), TerrainDestroyingProgression.class);
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         for (EntityType<? extends Entity> type : BuiltInRegistries.ENTITY_TYPE) {
@@ -35,5 +44,7 @@ public class CapAndAttachmentRegistry {
                         (livingEntity, ctx) -> new LocalHurtCooldownCap((LivingEntity) livingEntity));
             }
         }
+        event.registerEntity(TERRAIN_DESTROYING_CAP, EntityType.PLAYER,
+                (player, ctx) -> new TerrainDestroyingProgression(player));
     }
 }

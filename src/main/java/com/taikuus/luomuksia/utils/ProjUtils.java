@@ -1,4 +1,4 @@
-package com.taikuus.luomuksia.api.utils;
+package com.taikuus.luomuksia.utils;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;

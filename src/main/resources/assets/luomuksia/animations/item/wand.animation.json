@@ -1,0 +1,47 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.wand.idle": {
+			"loop": true,
+			"animation_length": 3,
+			"bones": {
+				"cube": {
+					"rotation": {
+						"0.0": {
+							"vector": [45, 0, 45],
+							"easing": "linear"
+						},
+						"3.0": {
+							"vector": [45, 360, 45],
+							"easing": "linear"
+						}
+					}
+				},
+				"inner_glass": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"3.0": {
+							"vector": [0, 720, 720],
+							"easing": "linear"
+						}
+					}
+				},
+				"outer_glass": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"3.0": {
+							"vector": [360, 360, 0],
+							"easing": "linear"
+						}
+					}
+				}
+			}
+		}
+	}
+}

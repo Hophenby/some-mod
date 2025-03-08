@@ -8,6 +8,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
+
+import static com.taikuus.luomuksia.setup.WandAttrRegistry.WAND_ATTR_REGISTRY;
 
 @EventBusSubscriber(modid = Luomuksia.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class RegisterEvent {
@@ -21,5 +24,9 @@ public class RegisterEvent {
                 LastCalcedActionsHandler.LastCalcedActions.STREAM,
                 LastCalcedActionsHandler::handleData
         );
+    }
+    @SubscribeEvent
+    static void registerRegistries(NewRegistryEvent event) {
+        event.register(WAND_ATTR_REGISTRY);
     }
 }

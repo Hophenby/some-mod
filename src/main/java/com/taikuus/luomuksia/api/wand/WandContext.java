@@ -1,6 +1,5 @@
 package com.taikuus.luomuksia.api.wand;
 
-import com.taikuus.luomuksia.Luomuksia;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.event.WandFireEvent;
 import net.minecraft.world.InteractionHand;
@@ -24,20 +23,23 @@ public class WandContext {
     private boolean disableActionDrawing = false;
     private boolean castLoggable = true; //TODO: Configurable
 
+    private final int drawNum;
+
 
     public WandContext(ActionCardDeck rawDeck, int storedMana, int reloadTicks) {
-        this.deck.draw(rawDeck.actions());
-        this.storedMana = storedMana;
-        this.reloadTicks = reloadTicks;
-        this.delayTicks = 0;
+        this(rawDeck, ActionCardDeck.empty(), ActionCardDeck.empty(), storedMana, reloadTicks);
     }
     public WandContext(ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard, int storedMana, int reloadTicks) {
+        this(deck, hand, discard, storedMana, reloadTicks, 1);
+    }
+    public WandContext(ActionCardDeck deck, ActionCardDeck hand, ActionCardDeck discard, int storedMana, int reloadTicks, int drawNum) {
         this.deck.draw(deck.actions());
         this.hand.draw(hand.actions());
         this.discard.draw(discard.actions());
         this.storedMana = storedMana;
         this.reloadTicks = reloadTicks;
         this.delayTicks = 0;
+        this.drawNum = drawNum;
     }
 
     /**
@@ -76,15 +78,15 @@ public class WandContext {
         if (world.isClientSide) {
             return;
         }
-        currentState = new ShotStates(1, world, player); //TODO: numFirstDraw may be customizable
+        currentState = new ShotStates(drawNum, world, player);
         WandFireEvent.Pre event = new WandFireEvent.Pre(currentState, player, world, pHand, player.getItemInHand(pHand));
         NeoForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             return;
         }
         parseShot(currentState);
-        Luomuksia.LOGGER.info("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
-        Luomuksia.LOGGER.info("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
+//        Luomuksia.LOGGER.debug("deck: " + deck.actions().size() + " hand: " + hand.actions().size() + " discard: " + discard.actions().size());
+//        Luomuksia.LOGGER.debug("storedMana: " + storedMana + " reloadTicks: " + reloadTicks + " delayTicks: " + delayTicks);
         moveHandToDiscard();
         if (deck.isEmpty() || startReload) {
             startReload = true;
@@ -134,8 +136,8 @@ public class WandContext {
                 return false;
             }
             spendMana(wrappedAction.action().getManaCost());
-            Luomuksia.LOGGER.debug("Casting action: " + wrappedAction.action().getId() + " with mana cost: " + wrappedAction.action().getManaCost());
-            Luomuksia.LOGGER.debug("Remaining mana: " + storedMana);
+//            Luomuksia.LOGGER.debug("Casting action: " + wrappedAction.action().getId() + " with mana cost: " + wrappedAction.action().getManaCost());
+//            Luomuksia.LOGGER.debug("Remaining mana: " + storedMana);
         }
         if (wrappedAction != null) {
             castAction(wrappedAction);

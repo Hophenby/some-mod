@@ -136,7 +136,7 @@ public class ProjectileStoneCutter extends AbstractModifiableProj {
             this.playSound(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1.0F, 1.2F / (random.nextFloat() * 0.2F + 0.9F));
         }
         //super.onHitBlock(pResult);
-        if (!piercing) {
+        if (!isPiercing()) {
             this.removeFlag = true;
         }
     }

@@ -10,10 +10,10 @@ import net.minecraft.util.Mth;
 
 /**
  * This code may be taken from LambDynamicLights, an MIT fabric mod: <a href="https://github.com/LambdAurora/LambDynamicLights">Github Link</a>
- * <p></p>
+ * <p> </p>
  * Since mod Ars Nouveau added the lamb's dynamic light system, we can use it to make the projectile a light source (not completed).
  * But we should implement the logic ourselves when Ars Nouveau is not loaded.
- * <p></p>
+ * <p> </p>
  * the code only plans to work with our own AbstractModifiableProj, so it is not a complete implementation.
  * @author LambdAurora
  * @version 1.3.3

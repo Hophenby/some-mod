@@ -3,7 +3,7 @@ package com.taikuus.luomuksia.common.actions.modifier;
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.IMotionModifier;
 import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
-import com.taikuus.luomuksia.api.utils.ProjUtils;
+import com.taikuus.luomuksia.utils.ProjUtils;
 import net.minecraft.world.phys.Vec3;
 
 public class ModifierOrbit extends AbstractModifierAction implements IMotionModifier {

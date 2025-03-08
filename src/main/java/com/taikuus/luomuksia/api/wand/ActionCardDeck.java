@@ -1,7 +1,7 @@
 package com.taikuus.luomuksia.api.wand;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nullable;
@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public record ActionCardDeck(List<WrappedWandAction> actions){
     public static final Codec<ActionCardDeck> CODEC = WrappedWandAction.CODEC.listOf().xmap(ActionCardDeck::new, ActionCardDeck::actions);
-    public static final StreamCodec<FriendlyByteBuf, ActionCardDeck> STREAM = StreamCodec.of(
+    public static final StreamCodec<RegistryFriendlyByteBuf, ActionCardDeck> STREAM = StreamCodec.of(
             (buf, deck) -> buf.writeCollection(deck.actions(), WrappedWandAction.STREAM),
             (buf) -> {
                 int size = buf.readVarInt();

@@ -2,8 +2,8 @@ package com.taikuus.luomuksia.api.entity.proj;
 
 import com.taikuus.luomuksia.api.actions.*;
 import com.taikuus.luomuksia.api.client.lighter.ProjLightHelper;
-import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.client.lighter.ProjLightUtils;
+import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.common.entity.fx.FadeLightFxProj;
 import com.taikuus.luomuksia.network.CritFxPacket;
 import com.taikuus.luomuksia.setup.MiscRegistry;
@@ -24,10 +24,13 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,14 +39,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+//TODO extract the modifiable part to a separate interface
 public abstract class AbstractModifiableProj extends Projectile implements IModifiableProj {
     private int timer = 0;
     private int maxExistingTicks = 20 * 60; // 1 minute
     private int maxExistingTicksLimit = 20 * 3600; // an hour
     public boolean hitLiquid = false;
     public boolean hurtEntity = true;
-    public boolean piercing = false;
     private float damage = 0.0f;
+    private float terrainDamage = 0.0f;
     private float knockback = 0.0f;
     private float gravity = 0.03f;
     private float fricCoef = 0.97f;
@@ -59,7 +63,9 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     public ShotStates hitTrigger;
     public static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> LIGHT_LEVEL = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> PIERCING = SynchedEntityData.defineId(AbstractModifiableProj.class, EntityDataSerializers.BOOLEAN);
     public final ModifiersHelper modifiersHelper = new ModifiersHelper();
+    private int decreasedLight = 0;
     protected AbstractModifiableProj(EntityType<? extends AbstractModifiableProj> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
@@ -107,12 +113,14 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
     protected void defineSynchedData(SynchedEntityData.Builder pBuilder) {
         pBuilder.define(LIGHT_LEVEL, 0);
         pBuilder.define(OWNER_ID, -1);
+        pBuilder.define(PIERCING, false);
     }
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         this.entityData.set(OWNER_ID, tag.getInt("owner_id"));
         this.entityData.set(LIGHT_LEVEL, tag.getInt("light_level"));
+        this.entityData.set(PIERCING, tag.getBoolean("piercing"));
         //Luomuksia.LOGGER.debug("readAdditionalSaveData() " + this.entityData.get(LIGHT_LEVEL));
     }
 
@@ -121,6 +129,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         super.addAdditionalSaveData(tag);
         tag.putInt("owner_id", this.entityData.get(OWNER_ID));
         tag.putInt("light_level", this.entityData.get(LIGHT_LEVEL));
+        tag.putBoolean("piercing", this.entityData.get(PIERCING));
     }
     public boolean isExpired() {
         return getTimer() > getMaxExistingTicks();
@@ -146,9 +155,33 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         setDeltaMovement(motion);
         this.move(MoverType.SELF, this.getDeltaMovement());
 
+        // Check if the proj flies into the wall
+        if (this.getDynamicLightLevel() > 0 && this.getLightDecrement() > 0 && this.decreasedLight == 0) {
+            this.decreasedLight = this.getLightDecrement();
+            this.setDynamicLightLevel(this.getDynamicLightLevel() - this.decreasedLight);
+        } else if (this.decreasedLight > 0 && this.getLightDecrement() == 0) {
+            this.decreasedLight = 0;
+            this.setDynamicLightLevel(this.getDynamicLightLevel() + this.decreasedLight);
+        }
+
         super.tick();
     }
-
+    private int getLightDecrement() {
+        return BlockPos.betweenClosedStream(this.getBoundingBox())
+            .filter(
+                    p_201942_ -> {
+                        BlockState blockstate = this.level().getBlockState(p_201942_);
+                        return !blockstate.isAir()
+                                && Shapes.joinIsNotEmpty(
+                                blockstate.getCollisionShape(this.level(), p_201942_)
+                                        .move((double)p_201942_.getX(), (double)p_201942_.getY(), (double)p_201942_.getZ()),
+                                Shapes.create(this.getBoundingBox()),
+                                BooleanOp.AND
+                        );
+                    }
+            ).map(blockPos -> this.level().getBlockState(blockPos).getLightBlock(this.level(), blockPos))
+                .mapToInt(Integer::intValue).max().orElse(0);
+    }
     @Override
     public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> pKey) {
         super.onSyncedDataUpdated(pKey);
@@ -201,7 +234,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         }
     }
     public boolean canHurtEntity(Entity entity) {
-        return this.hurtEntity && (entity != this.getOwner() || this.piercing);
+        return this.hurtEntity && (entity != this.getOwner() || this.isPiercing());
     }
     @Override
     protected void onHitBlock(@NotNull BlockHitResult pResult){
@@ -216,7 +249,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
 
     protected void attemptRemoval() {
         //this.beforeRemoval();
-        if (!this.piercing) {
+        if (!this.isPiercing() || this.isExpired()) {
             this.attemptRemovalNoPiercingCheck();
         } else {
             this.beforeRemoval();
@@ -228,6 +261,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             if (this.getDynamicLightLevel() > 0) {
                 FadeLightFxProj fx = new FadeLightFxProj(this);
                 this.level().addFreshEntity(fx);
+                this.setDynamicLightLevel(0);
             }
         }
         this.remove(RemovalReason.DISCARDED);
@@ -302,6 +336,8 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             }
         }
     }
+
+
     public HitResult getHitResult() {
         Vec3 thisPosition = this.position();
         Vec3 nextPosition = getNextHitPosition();
@@ -432,6 +468,26 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
         this.initVec = initVec;
     }
 
+    public boolean isPiercing() {
+        return this.entityData.get(PIERCING);
+    }
+
+    public void setPiercing(boolean piercing) {
+        this.entityData.set(PIERCING, piercing);
+    }
+
+    public float getTerrainDamage() {
+        return terrainDamage;
+    }
+
+    public void setTerrainDamage(float terrainDamage) {
+        this.terrainDamage = terrainDamage;
+    }
+    @Override
+    protected double getDefaultGravity() {
+        return gravity;
+    }
+
     /**
      * Helper class to apply tickable motion modifiers to the projectile
      */
@@ -441,9 +497,7 @@ public abstract class AbstractModifiableProj extends Projectile implements IModi
             hookList.add(hook);
         }
         public Vec3 applyMotiveHooks(Vec3 motion) {
-            if (!AbstractModifiableProj.this.isNoGravity()) {
-                motion = motion.add(0, -gravity, 0);
-            }
+            AbstractModifiableProj.this.applyGravity();
             motion = motion.scale(getFricCoef());
             if (onGround()){
                 BlockPos groundPos = getBlockPosBelowThatAffectsMyMovement();

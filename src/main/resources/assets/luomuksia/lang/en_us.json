@@ -35,6 +35,7 @@
   "tooltip.action.luomuksia.action_proj_spark.desc": "A small spark that deals a small amount of damage.",
   "tooltip.action.luomuksia.action_proj_bouncing_ball.desc": "2 bouncing balls that deals a small amount of damage. Every bounce increases the damage by (0.3).",
   "tooltip.action.luomuksia.action_proj_stonecutter.desc": "Fires literally a stonecutter that cuts stones, woods and enemies.",
+  "tooltip.action.luomuksia.action_proj_lightblade.desc": "Fires a laser blade that deals a small amount of damage. It can cut through terrain and destroy blocks.",
 
   "tooltip.action.luomuksia.action_modifier_accelerate.desc": "Increases the speed of the projectile by 1% per tick. Only exists for 30 ticks.",
   "tooltip.action.luomuksia.action_modifier_homing.desc": "Projectile gains additional motion towards the nearest enemy in 10 blocks range.",
@@ -56,6 +57,7 @@
   "item.luomuksia.action_proj_spark": "Spark",
   "item.luomuksia.action_proj_bouncing_ball": "Bouncing Ball",
   "item.luomuksia.action_proj_stonecutter": "Stonecutter",
+  "item.luomuksia.action_proj_lightblade": "Light Blade",
   "item.luomuksia.action_modifier_accelerate": "Accelerate",
   "item.luomuksia.action_modifier_homing": "Homing",
   "item.luomuksia.action_modifier_redirecting_homing": "Redirecting Homing",
@@ -78,9 +80,13 @@
   "entity.luomuksia.projectile_bouncing_ball": "Flying Bouncing Ball",
   "entity.luomuksia.projectile_stone_cutter": "Flying Stonecutter",
   "entity.luomuksia.projectile_spark": "Flying Spark",
+  "entity.luomuksia.projectile_light_blade": "Laser Blade",
+
 
   "gui.luomuksia.wand.deck": "Deck",
   "gui.luomuksia.wand.discard": "Discard",
-  "gui.luomuksia.wand.last_cast": "Last Cast"
+  "gui.luomuksia.wand.last_cast": "Last Cast",
+
+  "container.luomuksia.wand_editing_table": "Wand Editing Table"
 
 }

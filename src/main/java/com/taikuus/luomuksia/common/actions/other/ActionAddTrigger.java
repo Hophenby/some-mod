@@ -7,6 +7,7 @@ import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
 import com.taikuus.luomuksia.api.wand.WrappedWandAction;
+import com.taikuus.luomuksia.common.actions.modifier.AbstractModifierAction;
 import com.taikuus.luomuksia.common.actions.projectile.AbstractProjAction;
 import net.minecraft.world.entity.Entity;
 
@@ -43,6 +44,13 @@ public class ActionAddTrigger extends AbstractWandAction {
             if (action.action() instanceof AbstractProjAction<?> projAction) {
                 proj1 = projAction;
                 context.spendMana(proj1.getManaCost());
+            }
+            // if the action is a projectile, add it to the triggers
+            if (action.action() instanceof AbstractModifierAction modAction) {
+                if (context.isCastLoggable()){
+                    context.logCast(modAction);
+                }
+                stats.addModifier(modAction);
             }
         }
         // the case where the load action is found

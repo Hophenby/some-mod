@@ -11,6 +11,7 @@ import com.taikuus.luomuksia.client.tooltip.WandTooltip;
 import com.taikuus.luomuksia.setup.EntityRegistry;
 import com.taikuus.luomuksia.setup.MiscRegistry;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,8 +28,7 @@ public class ClientRegistry {
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(EntityRegistry.PROJECTILE_SPARK.get(), NoopRenderer::new);
-        event.registerEntityRenderer(EntityRegistry.PROJECTILE_BOUNCING_BALL.get(), NoopRenderer::new);
-        //TODO: Implement renderer maybe fireball renderer
+        event.registerEntityRenderer(EntityRegistry.PROJECTILE_BOUNCING_BALL.get(), ThrownItemRenderer::new);
         //TODO: add custom particles
         event.registerEntityRenderer(EntityRegistry.PROJECTILE_STONE_CUTTER.get(), ProjRendererStoneCutter::new);
         event.registerEntityRenderer(EntityRegistry.FADE_LIGHT.get(), NoopRenderer::new);
@@ -46,5 +46,10 @@ public class ClientRegistry {
     public static void registerTooltipFactory(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(WandTooltip.class, WandTooltip.ClientWandTooltip::new);
         event.register(ActionTooltip.class, ActionTooltip.ClientActionTooltip::new);
+    }
+    @SubscribeEvent
+    public static void registerModelLayers(EntityRenderersEvent.RegisterLayerDefinitions event){
+        event.registerLayerDefinition(ProjRendererLightBlade.LAYER_LOCATION, ProjRendererLightBlade::createBodyLayer);
+
     }
 }

@@ -4,7 +4,7 @@ import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.client.gui.WandInfoHUD;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ public class LastCalcedActionsHandler {
     public record LastCalcedActions(List<AbstractWandAction> actions) implements CustomPacketPayload {
         public static final Type<LastCalcedActions> TYPE = new Type<>(RegistryNames.getRL("last_calced_actions"));
 
-        public static final StreamCodec<FriendlyByteBuf, LastCalcedActions> STREAM = StreamCodec.of(
+        public static final StreamCodec<RegistryFriendlyByteBuf, LastCalcedActions> STREAM = StreamCodec.of(
                 (buf, packet) -> buf.writeCollection(packet.actions(), AbstractWandAction.STREAM),
                 (buf) -> {
                     int size = buf.readVarInt();

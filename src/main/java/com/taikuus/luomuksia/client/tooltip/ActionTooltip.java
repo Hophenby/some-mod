@@ -33,7 +33,7 @@ public record ActionTooltip(AbstractWandAction wandAction) implements TooltipCom
             return statsWithIcon.entrySet().stream()
                     .mapToInt(entry -> pFont.width(translated(entry.getKey(), entry.getValue())))
                     .max()
-                    .orElse(0);
+                    .orElse(0) + 12;
         }
         private Component translated(AbstractWandAction.TooltipShowableStats stat, String value) {
             return Component.translatable(stat.getTranslationKey(), value);

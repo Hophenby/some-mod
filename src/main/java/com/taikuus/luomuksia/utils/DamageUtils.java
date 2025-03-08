@@ -1,4 +1,4 @@
-package com.taikuus.luomuksia.api.utils;
+package com.taikuus.luomuksia.utils;
 
 import com.taikuus.luomuksia.api.entity.proj.AbstractModifiableProj;
 import net.minecraft.world.entity.Entity;

@@ -3,7 +3,7 @@ package com.taikuus.luomuksia.common.actions.multicast;
 import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.taikuus.luomuksia.api.actions.EnumActionTypes;
-import com.taikuus.luomuksia.api.utils.ShapingFunctions;
+import com.taikuus.luomuksia.utils.ShapingFunctions;
 import com.taikuus.luomuksia.api.wand.ShotStates;
 import com.taikuus.luomuksia.api.wand.WandContext;
 import net.minecraft.network.chat.Component;

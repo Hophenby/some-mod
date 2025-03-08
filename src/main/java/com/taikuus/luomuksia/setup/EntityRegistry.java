@@ -1,7 +1,7 @@
 package com.taikuus.luomuksia.setup;
 
 import com.taikuus.luomuksia.Luomuksia;
-import com.taikuus.luomuksia.api.utils.Vec3List;
+import com.taikuus.luomuksia.utils.TrailingPath3D;
 import com.taikuus.luomuksia.common.entity.fx.FadeLightFxProj;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileBouncingBall;
 import com.taikuus.luomuksia.common.entity.projectile.ProjectileLightBlade;
@@ -65,12 +65,12 @@ public class EntityRegistry {
             () -> EntityType.Builder.<ProjectileLightBlade>of(ProjectileLightBlade::new, MobCategory.MISC)
                     .sized(0.1F, 0.1F)
                     .clientTrackingRange(4)
-                    .updateInterval(2)
+                    .updateInterval(1)
                     .noSave()
                     .build("projectile_light_blade")
     );
     public static final DeferredRegister<EntityDataSerializer<?>> DATA_SERIALIZER_REGISTRAR = DeferredRegister.create(NeoForgeRegistries.Keys.ENTITY_DATA_SERIALIZERS, Luomuksia.MODID);
 
-    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Vec3List>> LINKED_VEC3_LIST = DATA_SERIALIZER_REGISTRAR.register(
-            "linked_vec3_list", () -> EntityDataSerializer.forValueType(Vec3List.STREAM_CODEC));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<TrailingPath3D>> TRAIL_DATA = DATA_SERIALIZER_REGISTRAR.register(
+            "trail_data", () -> EntityDataSerializer.forValueType(TrailingPath3D.STREAM_CODEC));
 }

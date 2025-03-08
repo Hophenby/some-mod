@@ -1,4 +1,4 @@
-package com.taikuus.luomuksia.api.utils;
+package com.taikuus.luomuksia.utils;
 
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.function.TriFunction;

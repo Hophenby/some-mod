@@ -6,6 +6,7 @@ import com.taikuus.luomuksia.api.wand.ActionCardDeck;
 import com.taikuus.luomuksia.api.wand.WandData;
 import com.taikuus.luomuksia.api.wand.WrappedWandAction;
 import com.taikuus.luomuksia.common.item.Wand;
+import com.taikuus.luomuksia.setup.WandAttrRegistry;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -38,13 +39,13 @@ public class WandInfoHUD {
         WandInfoHUD.lastCast = lastCast;
     }
     public static boolean isManaHUDVisible(WandData wd){
-        return wd.getAttr(RegistryNames.WAND_MAX_MANA.get()).getValue() > 0;
+        return wd.getMana() > 0;
     }
     public static boolean isReloadTimeHUDVisible(WandData wd){
-        return wd.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() > 0;
+        return wd.getMutable(WandAttrRegistry.ATTR_REMAINING_RELOAD_TICKS).getValue() > 0;
     }
     public static boolean isDelayTimeHUDVisible(WandData wd){
-        return wd.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() > 0;
+        return wd.getMutable(WandAttrRegistry.ATTR_REMAINING_DELAY_TICKS).getValue() > 0;
     }
 
     public static void renderOverlay(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -64,8 +65,7 @@ public class WandInfoHUD {
                     0, 0,
                     8 * 3, 0,
                     10, yAdjusted,
-                    (double) wd.getAttr(RegistryNames.WAND_MANA.get()).getValue() /
-                            (double) wd.getAttr(RegistryNames.WAND_MAX_MANA.get()).getValue()
+                    (double) wd.getMana() / (double) wd.getMaxMana()
             );
             guiGraphics.blit(
                     MANA_TEXTURE,
@@ -82,8 +82,8 @@ public class WandInfoHUD {
                     8, 0,
                     8 * 4, 0,
                     20, yAdjusted,
-                    (double) wd.getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() /
-                            (double) wd.getAttr(RegistryNames.WAND_LAST_DELAY_TICKS.get()).getValue()
+                    wd.getMutable(WandAttrRegistry.ATTR_REMAINING_DELAY_TICKS).getValue() /
+                            wd.getMutable(WandAttrRegistry.ATTR_LAST_DELAY_TICKS).getValue()
             );
             guiGraphics.blit(
                     DELAY_TEXTURE,
@@ -100,8 +100,8 @@ public class WandInfoHUD {
                     8 * 2, 0,
                     8 * 5, 0,
                     30, yAdjusted,
-                    (double) wd.getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() /
-                            (double) wd.getAttr(RegistryNames.WAND_LAST_RELOAD_TICKS.get()).getValue()
+                    wd.getMutable(WandAttrRegistry.ATTR_REMAINING_RELOAD_TICKS).getValue() /
+                            wd.getMutable(WandAttrRegistry.ATTR_LAST_RELOAD_TICKS).getValue()
             );
             guiGraphics.blit(
                     RELOAD_TEXTURE,

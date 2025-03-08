@@ -1,0 +1,149 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    64,
+    32
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        -46,
+        90,
+        55
+      ],
+      "translation": [
+        0,
+        0.25,
+        0.5
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        -46,
+        90,
+        55
+      ],
+      "translation": [
+        0,
+        0.25,
+        0.5
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        -46,
+        90,
+        55
+      ],
+      "translation": [
+        0,
+        0.25,
+        0.5
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        -46,
+        90,
+        55
+      ],
+      "translation": [
+        0,
+        0.25,
+        0.5
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    },
+    "ground": {
+      "rotation": [
+        -46,
+        45,
+        50
+      ],
+      "translation": [
+        0,
+        -2,
+        0.5
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    },
+    "gui": {
+      "rotation": [
+        60,
+        53,
+        -64
+      ],
+      "translation": [
+        -1.75,
+        -2.75,
+        0.5
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    },
+    "head": {
+      "rotation": [
+        -180,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        68,
+        0
+      ],
+      "scale": [
+        2.38,
+        2.38,
+        2.38
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        -46,
+        45,
+        50
+      ],
+      "translation": [
+        0,
+        -2,
+        0.5
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    }
+  },
+  "textures": {
+    "particle": "luomuksia:item/wand_tobereplaced"
+  }
+}

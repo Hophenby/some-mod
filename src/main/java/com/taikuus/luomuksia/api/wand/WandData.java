@@ -2,44 +2,72 @@ package com.taikuus.luomuksia.api.wand;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.taikuus.luomuksia.RegistryNames;
-import net.minecraft.network.FriendlyByteBuf;
+import com.taikuus.luomuksia.api.wand.wandattr.WandAttr;
+import com.taikuus.luomuksia.api.wand.wandattr.WandAttrInstance;
+import com.taikuus.luomuksia.api.wand.wandattr.WandAttrProvider;
+import com.taikuus.luomuksia.setup.WandAttrRegistry;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.core.Holder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
 
 
 public class WandData {
-    public final List<CodecableWandAttr> allAttr = new WandAttrProvider.TieredAttrBuilder(1).build();
+    public Map<Holder<WandAttr>, WandAttrInstance> getAttributes() {
+        return attributes;
+    }
+
+    public Map<Holder<WandAttr>, WandAttrInstance.Mutable> getAllMutable() {
+        return allMutable;
+    }
+
+    public final Map<Holder<WandAttr>, WandAttrInstance> attributes = WandAttrProvider.getBaseAttrs();
+    public final Map<Holder<WandAttr>, WandAttrInstance.Mutable> allMutable = WandAttrProvider.getMutableAttrs();
     public static final Codec<WandData> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                    Codec.list(CodecableWandAttr.CODEC).fieldOf("allAttr").forGetter(WandData::attrList),
+                    Codec.simpleMap(WandAttr.CODEC, WandAttrInstance.CODEC, WandAttrRegistry.WAND_ATTR_REGISTRY).fieldOf("attributes").forGetter(WandData::getAttributes),
+                    Codec.simpleMap(WandAttr.CODEC, WandAttrInstance.MUTABLE_CODEC, WandAttrRegistry.WAND_ATTR_REGISTRY).fieldOf("mutables").forGetter(WandData::getAllMutable),
                     ActionCardDeck.CODEC.fieldOf("deck").forGetter(WandData::getDeck),
                     ActionCardDeck.CODEC.fieldOf("discard").forGetter(WandData::getDiscard)
-            ).apply(instance, WandData::new)
-    );
-    public static final StreamCodec<FriendlyByteBuf,WandData> STREAM = StreamCodec.of(
+            ).apply(instance, WandData::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, WandData> STREAM = StreamCodec.of(
             (buf, data) -> {
-                buf.writeInt(data.allAttr.size());
-                for (CodecableWandAttr attr : data.allAttr) {
-                    CodecableWandAttr.STREAM.encode(buf, attr);
-                }
+                buf.writeInt(data.attributes.size());
+                data.attributes.forEach((attr, instance) -> {
+                    WandAttr.STREAM.encode(buf, attr);
+                    WandAttrInstance.STREAM.encode(buf, instance);
+                });
+                buf.writeInt(data.allMutable.size());
+                data.allMutable.forEach((attr, instance) -> {
+                    WandAttr.STREAM.encode(buf, attr);
+                    WandAttrInstance.MUTABLE_STREAM.encode(buf, instance);
+                });
                 ActionCardDeck.STREAM.encode(buf, data.getDeck());
                 ActionCardDeck.STREAM.encode(buf, data.getDiscard());
             },
             (buf) -> {
                 int size = buf.readInt();
-                List<CodecableWandAttr> allAttr = new CopyOnWriteArrayList<>();
+                Map<Holder<WandAttr>, WandAttrInstance> attr = new Object2ObjectOpenHashMap<>();
                 for (int i = 0; i < size; i++) {
-                    allAttr.add(CodecableWandAttr.STREAM.decode(buf));
+                    Holder<WandAttr> holder = WandAttr.STREAM.decode(buf);
+                    WandAttrInstance instance = WandAttrInstance.STREAM.decode(buf);
+                    attr.put(holder, instance);
+                }
+                size = buf.readInt();
+                Map<Holder<WandAttr>, WandAttrInstance.Mutable> attr1 = new Object2ObjectOpenHashMap<>();
+                for (int i = 0; i < size; i++) {
+                    Holder<WandAttr> holder = WandAttr.STREAM.decode(buf);
+                    WandAttrInstance.Mutable instance = WandAttrInstance.MUTABLE_STREAM.decode(buf);
+                    attr1.put(holder, instance);
                 }
                 ActionCardDeck deck = ActionCardDeck.STREAM.decode(buf);
                 ActionCardDeck discard = ActionCardDeck.STREAM.decode(buf);
-                return new WandData(allAttr, deck, discard);
+                return new WandData(attr, attr1, deck, discard);
             }
     );
     private final ActionCardDeck deck;
@@ -49,36 +77,29 @@ public class WandData {
         this.deck = deck;
         this.discard = discard;
     }
-    public WandData(List<CodecableWandAttr> allAttr, ActionCardDeck deck, ActionCardDeck discard) {
-        this(deck, discard);
-        // overwrite the default allAttr
-        this.overwriteAllAttr(allAttr);
-    }
-    public void overwriteAllAttr(List<CodecableWandAttr> allAttr) {
-        for (CodecableWandAttr attr : allAttr) {
-            for (CodecableWandAttr attr2 : this.allAttr) {
-                if (attr.getId().equals(attr2.getId())) {
-                    attr2.setValue(attr.getValue());
-                    break;
-                }
-            }
-        }
-    }
     public WandData() {
         this(ActionCardDeck.empty(), ActionCardDeck.empty());
     }
+    public WandData(Map<Holder<WandAttr>, WandAttrInstance> attributes, ActionCardDeck deck, ActionCardDeck discard) {
+        this(deck, discard);
+        // overwrite the default allAttr
+        this.attributes.clear();
+        this.attributes.putAll(attributes);
+    }
+    public WandData(Map<Holder<WandAttr>, WandAttrInstance> attributes, Map<Holder<WandAttr>, WandAttrInstance.Mutable> mutables, ActionCardDeck deck, ActionCardDeck discard) {
+        this(attributes, deck, discard);
+        this.allMutable.clear();
+        mutables.forEach((attr, mutable) -> this.allMutable.put(attr, mutable.copy()));
+    }
     public static WandData fromTier(int tier) {
         //Luomuksia.LOGGER.debug("Creating wand wandData from tier: " + tier);
-        return new WandData(new WandAttrProvider.TieredAttrBuilder(tier).build(), ActionCardDeck.empty(), ActionCardDeck.empty());
+        return new WandData(WandAttrProvider.setupAttrs(tier).build(), ActionCardDeck.empty(), ActionCardDeck.empty());
     }
     public static WandData custom(WandAttrProvider.TieredAttrBuilder builder) {
         return new WandData(builder.build(), ActionCardDeck.empty(), ActionCardDeck.empty());
     }
     public WandData copy() {
-        return new WandData(new ArrayList<>(allAttr), deck.copy(), discard.copy());
-    }
-    public List<CodecableWandAttr> attrList() {
-        return allAttr;
+        return new WandData(attributes, allMutable, deck.copy(), discard.copy());
     }
     public ActionCardDeck getDeck() {
         return deck;
@@ -101,75 +122,85 @@ public class WandData {
         all.orderDeck();
         return all;
     }
-    public CodecableWandAttr getAttr(ResourceLocation id) {
-        for (CodecableWandAttr attr : allAttr) {
-            if (attr.getId().equals(id)) {
-                return attr;
-            }
-        }
-        return null;
+    public WandAttrInstance getAttr(Holder<WandAttr> attr) {
+        return attributes.get(attr);
+    }
+    public int getWandSize() {
+        return (int) getAttr(WandAttrRegistry.ATTR_MAX_SLOTS).value();
+    }
+    public int getMana() {
+        return (int) getMutable(WandAttrRegistry.ATTR_MANA).getValue();
+    }
+    public int getMaxMana() {
+        return (int) getAttr(WandAttrRegistry.ATTR_MAX_MANA).value();
+    }
+    public WandAttrInstance.Mutable getMutable(Holder<WandAttr> attr) {
+        return allMutable.get(attr);
     }
     @Override
     public int hashCode() {
-        return allAttr.hashCode() + deck.hashCode() + discard.hashCode();
+        return attributes.hashCode() + deck.hashCode() + discard.hashCode();
     }
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof WandData other) {
-            return allAttr.equals(other.allAttr) && deck.equals(other.deck) && discard.equals(other.discard);
+            return attributes.equals(other.attributes) && deck.equals(other.deck) && discard.equals(other.discard);
         }
         return false;
     }
     @Override
     public String toString() {
         return "WandData{" +
-                "allAttr=" + allAttr +
+                "allAttr=" + attributes +
+                ", allMutable=" + allMutable +
                 ", deck=" + deck +
                 ", discard=" + discard +
                 '}';
     }
     public List<Component> getTooltip() {
         List<Component> tooltip = new ArrayList<>();
-        for (CodecableWandAttr attr : allAttr) {
-            tooltip.add(attr.getTooltip());
-        }
+        attributes.forEach((attr, instance) -> tooltip.add(instance.getTooltip()));
         return tooltip;
     }
-    public List<Component> getTooltip(List<ResourceLocation> filter) {
+    public List<Component> getTooltip(List<Holder<WandAttr>> filter) {
         List<Component> tooltip = new ArrayList<>();
-        for (CodecableWandAttr attr : allAttr) {
-            if (filter.contains(attr.getId())) {
-                tooltip.add(attr.getTooltip());
+        filter.forEach(attr -> {
+            if (attributes.containsKey(attr)) {
+                tooltip.add(attributes.get(attr).getTooltip());
             }
-        }
+        });
         return tooltip;
     }
-
-    public void tick() {
-        CodecableWandAttr manaRegen = getAttr(RegistryNames.WAND_MANA_REGEN.get());
+    private void restoreMana() {
+        if (getMaxMana() <= getMana()) return;
+        double manaRegen = getAttr(WandAttrRegistry.ATTR_MANA_REGEN).value();
         //restore mana
-        getAttr(RegistryNames.WAND_MANA.get()).setValue(
-                Math.min(getAttr(RegistryNames.WAND_MANA.get()).getValue() + manaRegen.getValue(),
-                        getAttr(RegistryNames.WAND_MAX_MANA.get()).getValue())
+        getMutable(WandAttrRegistry.ATTR_MANA).setValue(
+                Math.min(getMana() + manaRegen, getMaxMana()));
+        //Luomuksia.LOGGER.info("Restoring mana: " + manaRegen + " Remaining mana: " + getMana());
+    }
+    private void tickCooldowns() {
+        getMutable(WandAttrRegistry.ATTR_REMAINING_RELOAD_TICKS).setValue(
+                Math.max(getMutable(WandAttrRegistry.ATTR_REMAINING_RELOAD_TICKS).getValue() - 1, 0)
         );
+        getMutable(WandAttrRegistry.ATTR_REMAINING_DELAY_TICKS).setValue(
+                Math.max(getMutable(WandAttrRegistry.ATTR_REMAINING_DELAY_TICKS).getValue() - 1, 0)
+        );
+        if (getMutable(WandAttrRegistry.ATTR_REMAINING_RELOAD_TICKS).getValue() == 0) {
+            getMutable(WandAttrRegistry.ATTR_LAST_RELOAD_TICKS).setValue(0);
+        }
+        if (getMutable(WandAttrRegistry.ATTR_REMAINING_DELAY_TICKS).getValue() == 0) {
+            getMutable(WandAttrRegistry.ATTR_LAST_DELAY_TICKS).setValue(0);
+        }
+    }
 
+    public void tickData() {
+        //restore mana
+        restoreMana();
         //Luomuksia.LOGGER.debug("Restoring mana: " + manaRegen.getValue() + " Remaining mana: " + getAttr(RegistryNames.WAND_MANA.get()).getValue());
 
         //reload and delay
-        getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).setValue(
-                Math.max(getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() - 1, 0)
-        );
-        getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).setValue(
-                Math.max(getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() - 1, 0)
-        );
-
-        //reset the last reload and delay ticks when the remaining ticks run out
-        if (getAttr(RegistryNames.WAND_REMAINING_RELOAD_TICKS.get()).getValue() == 0) {
-            getAttr(RegistryNames.WAND_LAST_RELOAD_TICKS.get()).setValue(0);
-        }
-        if (getAttr(RegistryNames.WAND_REMAINING_DELAY_TICKS.get()).getValue() == 0) {
-            getAttr(RegistryNames.WAND_LAST_DELAY_TICKS.get()).setValue(0);
-        }
+        tickCooldowns();
 
     }
 }

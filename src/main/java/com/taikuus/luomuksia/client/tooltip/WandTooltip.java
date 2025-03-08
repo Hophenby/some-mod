@@ -4,10 +4,13 @@ import com.taikuus.luomuksia.RegistryNames;
 import com.taikuus.luomuksia.api.wand.ActionCardDeck;
 import com.taikuus.luomuksia.api.wand.WandData;
 import com.taikuus.luomuksia.api.wand.WrappedWandAction;
+import com.taikuus.luomuksia.api.wand.wandattr.WandAttr;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -16,49 +19,24 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public record WandTooltip(WandData wandData) implements TooltipComponent {
     public static class ClientWandTooltip implements ClientTooltipComponent{
         private final WandData wandData;
-        private final List<Component> tooltips;
+        private final Map<Holder<WandAttr>, Component> tooltips;
         private final int wandSize;
         private static final ResourceLocation WAND_EMPTY_SLOT = RegistryNames.getRL("textures/wand_attr/empty_slot.png");
-        public enum WandIcons {
-            TIER("textures/wand_attr/tier.png", RegistryNames.WAND_TIER),
-            MAX_MANA("textures/wand_attr/max_mana.png", RegistryNames.WAND_MAX_MANA),
-            MANA_REGEN("textures/wand_attr/mana_regen.png", RegistryNames.WAND_MANA_REGEN),
-            DELAY("textures/wand_attr/basic_delay_ticks.png", RegistryNames.WAND_BASIC_DELAY_TICKS),
-            RELOAD("textures/wand_attr/basic_reload_ticks.png", RegistryNames.WAND_BASIC_RELOAD_TICKS),
-            MAX_SLOTS("textures/wand_attr/max_slots.png", RegistryNames.WAND_MAX_SLOTS),;
-
-            private final ResourceLocation icon;
-            private final ResourceLocation attrName;
-
-            WandIcons(String path, RegistryNames attrName) {
-                this.icon = RegistryNames.getRL(path);
-                this.attrName = attrName.get();
-            }
-
-            public ResourceLocation getIcon() {
-                return this.icon;
-            }
-
-            public ResourceLocation getAttrName() {
-                return attrName;
-            }
-        }
 
         public ClientWandTooltip(WandTooltip wandTooltip) {
             this.wandData = wandTooltip.wandData().copy();
-            List<ResourceLocation> needed = Arrays.stream(WandIcons.values())
-                    .map(WandIcons::getAttrName)
-                    .collect(Collectors.toList());
-            this.tooltips = wandData.getTooltip(needed);
-            this.wandSize = wandData.getAttr(RegistryNames.WAND_MAX_SLOTS.get()).getValue();
+            this.tooltips = wandData.getAttributes().entrySet().stream()
+                    .map(entry -> Map.entry(entry.getKey(), entry.getValue().getTooltip()))
+                    .filter(entry -> !entry.getKey().value().isHidden())
+                    .collect(Object2ObjectOpenHashMap::new, (a, b) -> a.put(b.getKey(), b.getValue()), Map::putAll);
+            this.wandSize = wandData.getWandSize();
         }
 
         @Override
@@ -68,7 +46,7 @@ public record WandTooltip(WandData wandData) implements TooltipComponent {
 
         @Override
         public int getWidth(Font pFont) {
-            int textMax = tooltips.stream().max(Comparator.comparingInt(pFont::width)).map(pFont::width).orElse(0) + 16;
+            int textMax = tooltips.values().stream().max(Comparator.comparingInt(pFont::width)).map(pFont::width).orElse(0) + 16;
             int actionsMax = Math.min(wandSize, 9) * 18;
             return Math.max(textMax, actionsMax);
         }
@@ -76,7 +54,8 @@ public record WandTooltip(WandData wandData) implements TooltipComponent {
         @Override
         public void renderText(@NotNull Font pFont, int pMouseX, int pMouseY, @NotNull Matrix4f pMatrix, MultiBufferSource.@NotNull BufferSource pBufferSource) {
             int pY = 0;
-            for (Component component : tooltips) {
+            for (Component component : tooltips.entrySet().stream().sorted(
+                    Comparator.comparingDouble(entry -> entry.getKey().value().getTooltipPriority())).map(Map.Entry::getValue).toList()) {
                 pFont.drawInBatch(component, pMouseX + 12, pMouseY + pY, -1, false, pMatrix, pBufferSource, Font.DisplayMode.NORMAL, 0, 15728880);
                 pY += pFont.lineHeight + 2;
             }
@@ -88,8 +67,9 @@ public record WandTooltip(WandData wandData) implements TooltipComponent {
             int pY = 0;
             int lineH = pFont.lineHeight + 2;
             //ClientTooltipComponent.super.renderImage(pFont, pMouseX, pMouseY, pGuiGraphics);
-            for (WandIcons icon : WandIcons.values()) {
-                pGuiGraphics.blit(icon.getIcon(), pMouseX, pMouseY + pY,  8, 8,0,0,8,8,8,8);
+            for (Holder<WandAttr> attr : tooltips.keySet()) {
+                ResourceLocation iconRL = attr.value().getIconTexture();
+                pGuiGraphics.blit(iconRL, pMouseX, pMouseY + pY,  8, 8,0,0,8,8,8,8);
                 pY += lineH;
             }
             ActionCardDeck gathered = wandData.getDiscard().copy();

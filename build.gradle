@@ -1,3 +1,5 @@
+
+
 plugins {
     id 'java-library'
     id 'eclipse'
@@ -50,14 +52,22 @@ repositories {
     }
     maven { url 'https://maven.blamejared.com' }
     maven {
-        name = 'Forge'
-        url = "https://maven.minecraftforge.net"
+        name "neoforgedReleases"
+        url "https://maven.neoforged.net/releases"
     }
     maven {
         name = "OctoStudios"
         url = uri("https://maven.octo-studios.com/releases")
     }
     maven { url 'https://jitpack.io' }
+    maven {
+        name = "Iron's Maven - Release"
+        url = "https://code.redspace.io/releases"
+    }
+    maven {
+        name = "Iron's Maven - Snapshots"
+        url = "https://code.redspace.io/snapshots"
+    }
 
 }
 
@@ -84,16 +94,8 @@ neoForge {
     runs {
         // applies to all the run configs below
         configureEach {
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
             systemProperty 'forge.logging.markers', 'REGISTRIES'
 
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             systemProperty 'forge.logging.console.level', 'debug'
             sourceSet = sourceSets.main
         }
@@ -144,58 +146,49 @@ configurations {
 }
 
 dependencies {
-    // Specify the version of Minecraft to use.
-    // Depending on the plugin applied there are several options. We will assume you applied the userdev plugin as shown above.
-    // The group for userdev is net.neoforged, the module name is neoforge, and the version is the same as the neoforge version.
-    // You can however also use the vanilla plugin (net.neoforged.gradle.vanilla) to use a version of Minecraft without the neoforge loader.
-    // And its provides the option to then use net.minecraft as the group, and one of; client, server or joined as the module name, plus the game version as version.
-    // For all intends and purposes: You can treat this dependency as if it is a normal library you would use.
-    implementation "net.neoforged:neoforge:${neo_version}"
+    //implementation "net.neoforged:neoforge:${neo_version}"
 
     // Example optional mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-    // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
-    // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+    //compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"                             // jei
+    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"                              // jei
 
-    // implementation "com.hollingsworth.ars_nouveau:ars_nouveau-${minecraft_version}:${ars_version}"
-    if (minecraft_version == "1.21" || minecraft_version == "1.21.1") {
+    if (minecraft_version == "1.21" || minecraft_version == "1.21.1") {                                     // ars nouveau
         implementation "com.hollingsworth.ars_nouveau:ars_nouveau-1.21.0:${ars_version}"
         // using hardcoded "1.21.0" instead of ${minecraft_version} because it's not called "1.21" which is what the minecraft_version exactly is
     } else {
         implementation "com.hollingsworth.ars_nouveau:ars_nouveau-${minecraft_version}:${ars_version}"
     }
+    compileOnly "io.redspace.ironsspellbooks:irons_spellbooks:${irons_spells_version}"                                    // iron's spellbooks
+    //implementation "com.github.glitchfiend:TerraBlender-neoforge:${minecraft_version}-${terrablender_version}" // terrablender
 
 
-    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"    // geckolib
+    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 
     compileOnly "vazkii.patchouli:Patchouli:${patchouli_version}"                                           // patchouli
     runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
 
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"                             // jei
-    implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"                              // jei
     implementation "curse.maven:jade-324717:${jade_version}"                                                // waila
     implementation "curse.maven:selene-499980:${moonlight_lib_version}"                                     // moonlight lib
-    implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"                             // curios
-
-    // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
-    // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
-
-    // Example mod dependency using a file as dependency
-    // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
+    implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
 
-    implementation "curse.maven:mmmmmmmmmmmm-225738:${literal_dummy_version}"                             // dummy mod for testing wand damage
+    runtimeOnly "curse.maven:mmmmmmmmmmmm-225738:${literal_dummy_version}"
+    compileOnly "curse.maven:tweakerge-915857:${tweakeroo_version}"
+    runtimeOnly "curse.maven:tweakerge-915857:${tweakeroo_version}"
+    compileOnly "curse.maven:mafglib-910766:${malilib_version}"
+    runtimeOnly "curse.maven:mafglib-910766:${malilib_version}"
+}
 
-    // Example project dependency using a sister or child project:
-    // implementation project(":myproject")
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
 
-    // For more info:
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+// IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -234,17 +227,5 @@ publishing {
         maven {
             url "file://${project.projectDir}/repo"
         }
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
-
-// IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
     }
 }

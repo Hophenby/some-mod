@@ -1,8 +1,8 @@
 package com.taikuus.luomuksia.api.wand;
 
-import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.taikuus.luomuksia.api.actions.AbstractWandAction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 

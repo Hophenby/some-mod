@@ -60,7 +60,7 @@ public class WandContents {
         }
         return false;
     }
-    public List<Integer> getOpenedSlots() {
+    public List<Integer> getActivatedSlots() {
         List<Integer> openedSlots = new CopyOnWriteArrayList<>();
         for (int i = 0; i < 27; i++) {
             if (wandContentsSlot[i].isActive()) {
@@ -68,6 +68,15 @@ public class WandContents {
             }
         }
         return openedSlots;
+    }
+    public List<Integer> getDeactivatedSlots() {
+        List<Integer> deactivatedSlots = new CopyOnWriteArrayList<>();
+        for (int i = 0; i < 27; i++) {
+            if (!wandContentsSlot[i].isActive()) {
+                deactivatedSlots.add(i);
+            }
+        }
+        return deactivatedSlots;
     }
 
 }
